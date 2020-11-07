@@ -66,4 +66,80 @@ tomcat.getServer().await();
     * (참고) `mvn clean` 은 target 하위 모든 파일 삭제
 
 ## 2. 스프링부트 활용
-### 1. 
+### 1. SpringApplication
+ * [참고 문서](https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-spring-application)
+ * main 함수에서 application을 `run` 하는데, 그때 여러가지 설정 가능.
+```java
+public static void main(String[] args) {
+    SpringApplication app = new SpringApplication(MySpringConfiguration.class);
+    app.setBannerMode(Banner.Mode.OFF);
+    app.run(args);
+}
+```
+#### FailureAnalyzers
+    * application start에 실패한 경우, 실패한 이유에 대해 자세히(+이쁘게) 로깅해주는 기능
+ * 배너 설정 가능 (application 부팅시 나오는 로그)
+#### ApplicationEvent
+    * `ApplicationListener<ApplicationStartingEvent>` 인터페이스를 구현한 이벤트 리스너 클래스 생성
+    * Override 함수 중 `onApplicationEvent(ApplicationStartingEvent event)` 함수를 오버라이딩하면 어플리케이션 시작 이벤트 발생시 기능 추가 가능.
+    * `ApplicationStartingEvent` 이벤트는 ApplicationContext 생성 전이기 때문에 어노테이션으로 빈을 등록할 수 없고, 직접 메인함수의 SpringApplication 객체에 리스너를 인스턴스로 등록해야 한다.
+       * 어노테이션으로 빈을 등록하려면 `ApplicationStartedEvent` 이벤트를 이용
+    * 이외에도 여러 Application event가 있다.
+       * https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-application-events-and-listeners
+#### WebApplicationType
+ * SERVLET(webMVC로 동작, 1순위)
+    * `AnnotationConfigServletWebServerApplicationContext` 사용
+ * REACTIVE(webFlux로 동작)
+    * `AnnotationConfigReactiveWebServerApplicationContext` 사용
+ * NONE
+    * `AnnotationConfigApplicationContext` 사용
+#### ApplicationArguments
+ * 신규 클래스 생성 후 파라미터로 ApplicationArguments로 두면 ApplicationArguments를 사용할 수 있다.
+    * java -jar XXX.jar 실행시 `-D`는 JVM 옵션 `--` ApplicationArguments 이다.
+
+### 2. 외부설정
+#### 프로퍼티 우선순위
+ * 프로퍼티 우선 순위
+ * 유저 홈 디렉토리에 있는 spring-boot-dev-tools.properties
+ * 테스트에 있는 @TestPropertySource 어트리뷰트
+    * location 어트리뷰트로 프로퍼티 파일을 지정할 수도 있고, property 어트리뷰트로 직접 설정도 가능
+ * @SpringBootTest 애노테이션의 properties 어트리뷰트
+ * 커맨드 라인 아규먼트
+ * SPRING_APPLICATION_JSON (환경 변수 또는 시스템 프로티) 에 들어있는 프로퍼티
+ * ServletConfig 파라미터
+ * ServletContext 파라미터
+ * java:comp/env JNDI 애트리뷰트
+ * System.getProperties() 자바 시스템 프로퍼티
+ * OS 환경 변수
+ * RandomValuePropertySource
+ * JAR 밖에 있는 특정 프로파일용 application properties
+ * JAR 안에 있는 특정 프로파일용 application properties
+ * JAR 밖에 있는 application properties
+ * JAR 안에 있는 application properties
+ * @PropertySource
+ * 기본 프로퍼티 (SpringApplication.setDefaultProperties)
+
+#### application.properties 우선순위 (순위 높은게 낮은거를 덮어씀)
+ * `file:./config/` (상대경로는 실행파일 위치 기준)
+ * `file:./` (상대경로는 실행파일 위치 기준)
+ * `classpath:/config/`
+ * `classpath:/`
+
+#### 타입-safe 프로퍼티 @ConfigurationProperties
+ * @ConfigurationProperties 어노테이션을 붙인 클래스를 생성해 특정 프로퍼티를 타입 세이프하게 가져올 수 있다.
+ * 해당 프로퍼티 클래스를 빈으로 등록해서 사용할 수 있는데, main 함수가 있는 Application 클래스에 `@EnableConfigurationProperties({XXXProperties.class, ...})` 를 추가하면 된다.
+    * 이 작업없이, 빈으로 등록 방법(프로퍼티 설정에선 잘 사용되진 않음)
+       * Properties 클래스에 @Component 어노테이션을 붙여도 된다.
+       * @Configuration 어노테이션이 있는 클래스(설정 클래스)에서 @Bean 어노테이션을 붙이고 빈으로 등록하고자 하는 객체를 return하는 함수를 만들면 빈으로 등록
+ * Relaxed Binding
+    * properites 파일에 있는 설정 변수명이 케밥, 언더스코어, 카멜케이스 등등이라도 properties.java로 매핑될때 융통성있게 바인딩 해준다.
+### 3. 프로파일
+#### @Profile
+ * `spring.profiles.active={profile}` 프로파일 설정
+ * 프로파일 설정시, 설정된 프로파일에 따라 application-{profile}.properties 이 자동으로 매핑됨
+    * 참고 https://docs.spring.io/spring-boot/docs/1.5.6.RELEASE/reference/html/boot-features-external-config.html#boot-features-external-config-profile-specific-properties
+ * `spring.profiles.include={profile}` 프로파일 추가
+ * (참고) classpath 란?
+    * java source나 resource 파일들이 어딨는지 알 수 있도록 applicationContext에 지정하는 위치.
+       * intellij에서 File -> project structure -> Modules 탭에서 간단히 지정 가능.
+    * resource에 있는 파일을 java에서 불러오려면 ResourceLoader 인터페이스(혹은 이를 구현한 FileSystemResourceLoader 클래스 등)를 이용하면 된다.
