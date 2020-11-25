@@ -299,3 +299,150 @@ public class ExceptionController {
 	}
 }
 ```
+
+
+## 5. 스프링 데이터
+### 1. 인메모리 데이터베이스
+ * 스프링부트는 dataSource 설정이 없으면, 자동으로 인메모리 데이터베이스를 설정한다.
+ * 스프링부트는 H2(추천), HSQL, Derby 3가지를 지원한다.
+#### 1. H2
+ * 자동으로 dataSource와 jdbcTemplate을 빈으로 등록해주기 때문에 `@Autowired`로 가져와 사용 가능
+ * 자동으로 설정되는 내용
+   * db : `testdb`
+   * username : `sa`
+   * password : `""`
+ * H2 콘솔 사용 방법
+   * `spring.h2.console.enabled=true` 추가
+      * `/h2-console` 로 접근 가능
+### 2. DBCP와 MySQL
+#### 1. 지원하는 DBCP
+ * HikariCP (기본)
+   * `spring.datasource.hikari.*XXX*` 로 프로퍼티 설정 가능
+   * 설정
+     * `autoCommit` : default true -> 커밋 해주지 않아도 자동으로 커밋된다.
+     * `maximumPoolSize` : default: 10
+        * 많다고 무조건 좋은 건 아님, 어차피 cpu 코어 개수만큼 밖에 일하지 못함.
+ * Tomcat CP
+   * `spring.datasource.tomcat.*` 로 프로퍼티 설정 가능
+ * Commons DBCP2
+   * `spring.datasource.dbcp2.*` 로 프로퍼티 설정 가능
+#### 2. MySQL
+ * 도커 이용한 설치
+   * 도커 설치
+      * `docker ps` 로 떠있는 인스턴스 확인
+   * `docker run -p 3306:3306 --name mysql_boot -e MYSQL_ROOT_PASSWORD=1 -e MYSQL_DATABASE=springboot -e MYSQL_USER=keesun -e MYSQL_PASSWORD=pass -d mysql`
+   * `docker exec -i -t mysql_boot bash` : 인스턴스를 bash로 접속
+       * `docker stop mysql_boot` : 인스턴스 멈춤
+       * `docker rm mysql_boot` : 인스턴스 삭제
+   * `mysql -u root -p` mysql 접속
+       * `show databases;`
+       * `use [db_name];`
+       * `show tables;`
+
+ * datasource 설정
+   * spring.datasource.url=jdbc:mysql://localhost:3306/springboot?useSSL=false
+   * spring.datasource.username=keesun
+   * spring.datasource.password=pass
+#### 3. spring-data-jpa
+ * `spring-boot-starter-data-jpa` 의존성 필요
+    * Repository 빈 자동 생성
+    * 쿼리 메소드 자동 구현
+    * @EnableJpaRepositories (스프링부트가 자동 설정해줌)
+ * `@DataJpaTest` 로 슬라이싱 테스트 가능
+    * 인메모리 데이터베이스 필요
+ * 데이터베이스 초기화
+    * 데이터베이스 생성 `spring.jpa.hibernate.ddl-auto=update` 이외 create, none, validate
+    * `spring.jpa.generate-dll=true` 이 값을 true로 해줘야 ddl-auto 설정 중 entity를 찾아 DDL 쿼리를 생성한다.
+    * Spring 기본 설정 중, classpath에 `schema.sql` 파일이 있다면 이 스크립트를 서버 시작시 실행한다. DDL 스크립트.
+       * DML 스크립트는 `data.sql`
+
+### 3. redis, mongoDB
+ * 둘 모두 springboot에서 의존성만 추가하면 자동 설정되므로 로 주입받아 사용 가능.
+ * docker를 통해 실행시키고
+ * template 객체를 autowired로 주입 받아 사용하거나 CrudRepository를 implements한 repository 인터페이스를 생성해서 쉽게 사용할 수 있다.
+
+### 4. spring security
+ * `spring-boot-starter-security` 의존성으로 설정
+   * 자동설정시 자동으로 id,pw를 생성해줌. 
+      * id : `user`, pw : 실행시 콘솔에 나옴.
+      * 커스터마이징하려면 `UserDetailsService`를 implements한 @Service 클래스에서 가능.
+      
+ * 추가 설정없이 두면 모든 request를 가로채 security 체크 한다.
+ * `WebSecurityConfigurerAdapter` 를 상속하는 @Configuration 클래스를 만들어서 커스텀한 설정을 할 수 있다.
+    * `configure` 메서드를 오버라이드해서 커스터마이징 가능
+    * `passwordEncoder` @Bean 생성 및 커스터마이징해서 `UserDetailsService`에서 사용 가능.
+```
+@Configuration
+public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+   @Override
+   protected void configure(HttpSecurity http) throws Exception {
+       http.authorizeRequests()
+               .antMatchers("/", "/hello").permitAll()
+               .anyRequest().authenticated()
+               .and()
+           .formLogin()
+               .and()
+           .httpBasic();
+   }
+}
+```
+
+### 5. RestTemplate & WebClient
+#### 1. RestTemplate
+ * 기본으로 java.net.HttpURLConnection 사용.
+    * apache Connection을 사용하고 싶다면, 커스터마이저에서 RequestFactory 세팅을 변경해야 한다.
+ * 커스터마이징
+    * 로컬 커스터마이징
+    * 글로벌 커스터마이징
+       * RestTemplateCustomizer
+       * 빈 재정의
+#### 2. WebClient
+ * 기본으로 Reactor Netty의 HTTP 클라이언트 사용.
+ * 커스터마이징
+    * 로컬 커스터마이징
+    * 글로벌 커스터마이징
+       * WebClientCustomizer
+       * 빈 재정의
+
+## 6. 스프링 운영
+### 1. Spring actuator
+ * [공식문서](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#production-ready-endpoints)
+ * 의존성 `spring-boot-starter-actuator`
+ * 다양한 Endpoints 제공.
+    * JMX 또는 HTTP를 통해 접근 가능 함.
+    * shutdown을 제외한 모든 Endpoint는 기본적으로 활성화 상태.
+    * 활성화 옵션 조정
+       * `management.endpoints.enabled-by-default=false`
+       * `management.endpoint.info.enabled=true`
+#### 1. JMX(Java Management Extensions)
+ * 어플리케이션을 관리하고 모니터링하기 위한 표준
+ * 터미널에서 `jconsole` 엔터로 jconsole 사용가능.
+    * 힙 사용량, 스레드 개수, 프로세스 개수 등을 모니터링 가능.
+#### 2. http 사용
+ * `/actuator`
+ * health와 info를 제외한 대부분의 Endpoint가 기본적으로 비공개 상태
+ * 공개 옵션 조정
+    * `management.endpoints.web.exposure.include=*`
+    * `management.endpoints.web.exposure.exclude=env,beans`
+### 2. spring boot admin
+ * spring boot 제공이 아닌, 제 3자가 제공하는 오픈소스로 스프링부트 actuator UI 제공
+#### 어드민 서버 설정
+```
+<dependency>
+    <groupId>de.codecentric</groupId>
+    <artifactId>spring-boot-admin-starter-server</artifactId>
+    <version>2.0.1</version>
+</dependency>
+```
+ * main 클래스에 이 어노테이션 추가 `@EnableAdminServer`
+
+#### 클라이언트 설정
+```
+<dependency>
+    <groupId>de.codecentric</groupId>
+    <artifactId>spring-boot-admin-starter-client</artifactId>
+    <version>2.0.1</version>
+</dependency>
+```
+ * `spring.boot.admin.client.url=http://localhost:8080`
+ * `management.endpoints.web.exposure.include=*`
