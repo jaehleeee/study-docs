@@ -78,5 +78,5 @@
 #### 4.3.3.1 RSTP (Rapid STP)
  * 더 빠르게 개선
 
-#### MST (Multiple Spanning Tree)
+#### 4.3.3.2 MST (Multiple Spanning Tree)
  * 여러개의 VLAN을 그룹으로 묶고 그 그룹마다 별도의 스패닝 트리가 동작
