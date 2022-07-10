@@ -111,3 +111,8 @@ sourceSets {
  * `compile`, `implementation` 차이
     * compile : A 모듈을 수정하면, A를 의존하는 다른 모든 모듈이 rebuild
     * implementation : A 모듈을 수정하면, A 모듈을 직접적으로 의존하는 모듈까지만 rebuild
+
+
+### task 정의에서 `<<` 의미
+ * task 실행 순서를 후 순위로 연기시킨다는 의미이다.
+ * gradle 5.0부터 deprecated 되었고, task.dolast(Action) 형태를 대신 사용중이다.
