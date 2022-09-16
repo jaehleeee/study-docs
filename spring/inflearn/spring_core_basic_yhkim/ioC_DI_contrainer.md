@@ -19,3 +19,24 @@
  * AppConfig 처럼 객체를 생성하고 관리하면서 의존관계를 연결해주는 것을 IOC 컨테이너 혹은 DI 컨테이너라고 한다.
  * 의존관계 주입에 초첨을 맞춰 최근에는 DI 컨테이너라고 한다.
  * 또는 어셈블러, 오브젝트 팩토리 등으로 불리기도 한다.
+
+
+```
+
+@Configuration
+public class AppConfig {
+
+   @Bean
+   public MemberService memberService() {
+      return new MemberServiceImpl(memberRepository());
+   }
+   
+   @Bean
+   public MemberRepository memberRepository() {
+      return new MemoryMemberRepository();
+   }
+
+   ...
+
+}
+```
