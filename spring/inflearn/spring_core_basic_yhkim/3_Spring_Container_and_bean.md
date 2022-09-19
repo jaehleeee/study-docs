@@ -66,3 +66,14 @@ pulbic class MemberApplication {
     * `AnnotationConfigApplicationContext`는 `AnnotatedBeanDefinitionReader`를 사용해서 `AppConfg.class`를 읽고 `BeanDefinition` 을 생성한다.
     * 새로운 형식이 추가되면, XxxxxConfigApplicationContext는 XxxxxedBeanDefinitionReader를 사용해서 AppConfg.xxxx 읽고 BeanDefinition 을 생성한다.
  * 스프링 컨테이너는 이 BeanDefinition 이라는 빈 설정 메타 정보를 기반으로 스프링 빈을 생성한다.
+
+
+### BeanDefinition 정보
+ * BeanClassName : 생성할 빈의 클래스명
+ * factoryBeanName : 팩토리 역할의 빈을 사용하는 경우, ex) appConfig
+ * factoryMethodName : 빈을 생성할 팩토리 메서드 지정, ex) memberService
+ * Scope : 싱글톤 (디폴트)
+ * LazyInit : 스프링 컨테이너를 생성할때 빈을 생성하는게 아니라, 빈을 사용할때까지 최대한 생성을 지연처리하는지 여부
+ * InitMethodName : 빈을 생성하고 의존관계를 적용한 뒤 호출되는 초기화 메서드
+ * DestroyMethodName : 빈 생명주기가 끝나서 제거하기 직전 호출되는 메서드
+ * Constructor arguments, Properties : 의존관계 주입에서 사용
