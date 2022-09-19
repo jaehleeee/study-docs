@@ -68,7 +68,7 @@ pulbic class MemberApplication {
  * 스프링 컨테이너는 이 BeanDefinition 이라는 빈 설정 메타 정보를 기반으로 스프링 빈을 생성한다.
 
 
-### BeanDefinition 정보
+### BeanDefinition 정보 : 이 메타 정보들을 이용해서 스프링 컨테이너가 빈을 생성한다.
  * BeanClassName : 생성할 빈의 클래스명
  * factoryBeanName : 팩토리 역할의 빈을 사용하는 경우, ex) appConfig
  * factoryMethodName : 빈을 생성할 팩토리 메서드 지정, ex) memberService
