@@ -18,6 +18,40 @@
     * @Repository(스프링 데이터 계층으로 인식, 데이터 계층의 예외를 스프링 예외로 변환해준다.)
     * @Configuration (스프링 설정 정보로 인식)
 
-###  `@Autowired`
- * 의존관계를 자동으로 주입해준다.
- * 생성자에서 여러 의존관계도 하번에 주입받을 수 있다.
+
+### 의존관계 주입 with `@Autowired`
+ * 스프링 빈 클래스에서만 동작하는 어노테이션이다
+
+#### 4가지 사용 케이스
+ * 생성자 주입
+    * 생성자 호출 시점에 딱 1번만 호출되는 것이 보장된다.
+    * 불변, 필수인 의존관계일때 사용된다. (`private final`)
+    * 생성자가 1개만 있으면 `@Autowired` 생략 가능
+ * 수정자 주입 (setter)
+    * 선택적으로 가변 가능성이 있는 의존관계에 사용
+    * 생성자 주입과 비슷하게, 스프링 빈 준비 단계에서 호출되어 의존관계 주입된다.
+    * @Autowired 주입 시점에 주입할 대상이 없으면 오류가 발생한다. 주입할 대상이 없어도 동작하게 하려면 required = false 설정 필요
+ * 필드 주입 (권장하지 않음.)
+    * 코드가 간결해서 과거에 많이 사용했었음.
+    * 외부에서 변경이 불가능해서 테스트하기 힘들다는 치명적인 단점이 있다. 
+ * 일반 메서드 주입 (권장하지 않음.)
+    * 한번에 여러 필드를 주입 받을 수 있다.
+    * 일반적으로 거의 사용되지 않음.
+
+#### 스프링 빈 주입을 선택적으로 하고 싶을 때
+ *  `@Autowired(required = false)`
+ *  `@Nullable`
+ *  `Optional`
+
+```
+@Autowired(required = false)
+public void setNoBean1(A a){} // 호출되지 않음.
+
+@Autowired
+public void setNoBean2(@Nullable A a){} // null 호출
+
+@Autowired(required = false)
+public void setNoBean3(Optional<A> a){} // Optional.empty 호출
+
+```
+
