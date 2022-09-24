@@ -2,7 +2,7 @@
  * 스프링은 설정 정보가 없어도 자동으로 스프링 빈을 등록하는 컴포넌트 스캔이라는 기능을 제공한다.
  * 또, 의존관계도 자동으로 주입하는 `@Autowired` 기능도 제공한다.
 
-### `@ComponentScan`
+## 1. `@ComponentScan`
  * @Configuration 과 함께 설정 클래스에 붙여서 사용
     * 스프링부트에서는 Application 클래스 파일에 자동으로 붙는 `@SpringBootApplication`에 포함되어 있어서 수동으로 추가핦 필요없다.
  * `@Component` 어노테이션이 붙은 클래스를 모두 스프링 빈으로 등록한다.
@@ -19,7 +19,7 @@
     * @Configuration (스프링 설정 정보로 인식)
 
 
-### 의존관계 주입 with `@Autowired`
+## 2. 의존관계 주입 with `@Autowired`
  * 스프링 빈 클래스에서만 동작하는 어노테이션이다
 
 #### 4가지 사용 케이스
