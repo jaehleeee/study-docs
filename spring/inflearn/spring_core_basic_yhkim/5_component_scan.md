@@ -62,7 +62,7 @@ public void setNoBean3(Optional<A> a){} // Optional.empty 호출
  * `@Autowired` 는 타입으로 빈을 조회한다. 
  * 그래서 하나의 interface 의존관계의 상속된 하위 타입이 2개 이상인 빈이 존재한다면 NoUniqueBeanDefinitionException이 발생한다.
     * DiscountPolicy 라는 의존관계 interface가 있고, 하위에 RateDiscountPolicy와 FixDiscountPolicy 2가지 빈이 존재하는 경우
-####  해결방안은? `@Qualifier` `@Primary`
+####  해결방안은?
  1. @Autowired 필드명 매칭
  ```
  @Autowired
