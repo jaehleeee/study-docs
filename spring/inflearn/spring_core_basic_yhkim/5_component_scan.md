@@ -7,8 +7,10 @@
     * 스프링부트에서는 Application 클래스 파일에 자동으로 붙는 `@SpringBootApplication`에 포함되어 있어서 수동으로 추가핦 필요없다.
  * `@Component` 어노테이션이 붙은 클래스를 모두 스프링 빈으로 등록한다.
  * 탐색위치는 `basePackages = "{package 위치}"` 파라미터를 통해 탐색 시작 위치를 설정할 수 있다. (설정하지 않으면, 디폴트는 ComponentScan 어노테이션이 붙은 클래스의 패키지부터 시작한다.)
- * 특정 component를 스캔에 포함시키려면, includeFilter = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = MyIncludeComponent.class)
- * 특정 component를 스캔에서 제외하려면, excludeFilter = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = MyExcludeComponent.class)
+ * 특정 component를 스캔에 포함시키려면, includeFilter 파라미터 사용
+    * @MyIncludeComponent 어노테이션이 붙은 클래스를 포함하는 예시 : includeFilter = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = MyIncludeComponent.class)
+ * 특정 component를 스캔에서 제외하려면, excludeFilter 파라미터 사용
+    * @MyExcludeComponent 어노테이션이 붙은 클래스를 제외하는 예시 : excludeFilter = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = MyExcludeComponent.class)
  * 탐색 대상
     * @Component
     * @Controller(스프링 MVC 컨트롤러로 인식하는 기능도 있음)
