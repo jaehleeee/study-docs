@@ -55,3 +55,24 @@ public void setNoBean3(Optional<A> a){} // Optional.empty 호출
 
 ```
 
+#### 최신 트렌드 lombok 활용
+ * 의존관계 클래스를 private final 필드로 세팅해두고, `@RequiredArgsConstructor` 어노테이션만 세팅하면, 생성자 의존성 자동 주입 완성
+
+#### 같은 타입의 빈이 2개 이상인 경우
+ * `@Autowired` 는 타입으로 빈을 조회한다. 
+ * 그래서 하나의 interface 의존관계의 상속된 하위 타입이 2개 이상인 빈이 존재한다면 NoUniqueBeanDefinitionException이 발생한다.
+    * DiscountPolicy 라는 의존관계 interface가 있고, 하위에 RateDiscountPolicy와 FixDiscountPolicy 2가지 빈이 존재하는 경우
+####  해결방안은? `@Qualifier` `@Primary`
+ 1. @Autowired 필드명 매칭
+ ```
+ @Autowired
+ private DiscountPolicy rateDiscountPolicy
+ ```
+ 
+ 2. `@Qualifier` 끼리 매칭
+     1. `@Component` 어노테이션과 함께 `@Qualifier`를 붙여서 구분자 추가
+     2. `@Autowired` 주입하는 부분에서 `@Qualifier` 붙여서 구분자 매칭
+
+
+ 3. `@Primary` 사용 : 높은 우선순위 부여
+     1. `@Component` 어노테이션과 함께 `@Qualifier`를 붙여서 자동 주입시 높은 우선순위 부여 추가
