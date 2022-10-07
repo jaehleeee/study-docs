@@ -64,4 +64,38 @@ KStream<String, Purchase> purchaseKStream =
 1. 상태 수정을 피하는 것 : 객체를 변경하거나 업데이트할 필요가 있을 경우, 해당 객체를 함수에 전달하고 복사 또는 완전히 새로운 인스턴스를 만들고 원하는 변경을 한다.
 2. 여러 개의 작은 단일 용도의 함수를 함께 합성해 복잡한 작업을 구축하는 것이다.
 
+### 두번째 프로세서 : 패턴 데이터 추출
+```java
+KStream<String, PurchasePattern> patternKStream = 
+    purchaseKStream.mapValue(p -> PurchasePattern.builder(p).build());
+    
+patternKStream.to("patterns-topic", Produced.with(stringSerde, purchasePatternSerde));
+```
 
+### 세번째 프로세서 : 처음 생성한 KStream을 토픽 전송
+```java
+purchaseKStreamm.to("purchases-topic", Produced.with(stringSerde, purchaseSerde));
+```
+
+### 사용자 정의 Serde 만들기
+ * 카프카는 데이터를 바이트 배열 형식으로 전송한다.
+ * 데이터 형식이 json 이기 때문에, 먼저 객체를 json 으로 변환하고 바이트 배열로 변환해야 한다. 역직열화는 반대 순서로.
+ * Serde를 만들려면, 직열화는 Serializer<T>를 구현하고, 역직렬화는 Deserializer<T>를 구현해야 한다.
+    * gson을 활용하면 좋다.
+    
+    
+## 3.4 대화형 개발
+ * 콘솔에서 토폴로지를 통해 흐르는 데이터를 보는 편리한 기능 : KStream 인터페이스에서 유용하게 사용할 수 있는 메서드 `Printed<K, V>`
+ * 2가지로 제공
+    * `Printed.toSysOut()` : stdout 에 출력.
+    * `Printed.toFile()` : 파일에 결과를 기록.
+ * withLabel() 메서드를 통해 인쇄 결과에 레이블 추가 가능.
+ * 단점은 터미널 노드를 생성한다는 점이다. 따라서 프로세서 중간에 끼워넣지 못하고 별도로 넣어야 한다.
+    
+    
+## 3.5 다음 단계 : 추가 요구사항
+ * Predicated<K, V> 인스턴스를 매개변수로 사용하여 필터링 가능.
+    * KstreamNot 을 이용하면 동일한 필터링 기능을 반대로 사용 가능.
+ * Kstream.branch 에 여러 Predicated를 넣으면 넣은 Predicated 수 만큼 KStream [] 형태로 응답 받을수도 있다.
+    * 모든 Predicated 에 해당되지 않는 레코드는 삭제된다.
+ * ForeachAction 인스턴스를 사용하면 foreach 기능에 사용할 수 있다.
