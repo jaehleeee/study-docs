@@ -49,5 +49,19 @@ kafkaStreams.start(); // 카프카 스트림즈 스레드 시작.
 
 ## 3.3 사용자 데이터로 작업하기
 
+![image](https://user-images.githubusercontent.com/48814463/194524288-ec19a814-b314-4894-9a4e-29cec5833005.png)
+
+### 첫번째 프로세서 : 마스킹한 시용카드번호가 있는 객체 반환
+```java
+KStream<String, Purchase> purchaseKStream = 
+    streamBuilder.stream("transaction-topic", Cunsumed.with(stringSerde, purchaseSerde))
+        .mapValue(p -> Purchase.builder(p).maskCreditCard().build());
+```
+ * 예제에서는 소스 토픽을 하나만 지정하지만, 쉼표로 구분된 이름 목록 또는 토픽 이름과 일치하는 정규 표현식으로 여러 소스 토픽을 제공할수도 있다.
+ * purchaseSerde 는 사용자 정의 serde (아래에 자세히)
+
+#### 함수형 프로그래밍 2가지 핵심 원칙
+1. 상태 수정을 피하는 것 : 객체를 변경하거나 업데이트할 필요가 있을 경우, 해당 객체를 함수에 전달하고 복사 또는 완전히 새로운 인스턴스를 만들고 원하는 변경을 한다.
+2. 여러 개의 작은 단일 용도의 함수를 함께 합성해 복잡한 작업을 구축하는 것이다.
 
 
