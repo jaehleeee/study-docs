@@ -32,10 +32,32 @@ PrototypeBean HelloBean {
 
 ## 2. 프로토타입 스코프 - 싱글톤 빈과 함께 사용시 문제점
  * 싱글톤 빈 내부에 프로토타입 빈을 의존관계로 가지고 있을 때, 싱글톤 빈 생성 시점에 프로토타입도 함께 생성되어 계속 참조되어 사용된다.
+    * 즉 프로토타입 빈은 제 역할을 제대로 하지 못하게 된다.
 
+## 3. 프로토타입 스코프 - 싱글톤 빈과 함께 사용시 Provider로 문제 해결
+ * 의존관계를 외부에서 주입 받는게 아니라, 직접 필요한 의존관계를 찾는 것을 Dependency Lookup (DL) 의존관계 조회 라고 한다.
+ * 그러나 이렇게 스프링 컨텍스트 전체를 주입받게 되면, 스프링 컨테이너 종속적인 코드가 되고 단위 테스트도 어려워진다.
+ * 그래서 이러한 기능을 편하게 제공하는 스프링 기능이 있다. ObjectFacory, ObjectProvider
+ * ObjectProvider : 지정한 빈을 컨테이너 대신 찾아주는 서비스 (ObjectFacory 에 편의기능을 몇가지 더한 것)
+ * 위 기능을 사용하면, 싱글톤 빈과 함께 사용하더라도 프로토타입 빈을 역할대로 사용할 수 있다.
 
+```java
+@Autowired
+ObjectProvider<PrototypeCustomBean> provider;
 
+PrototypeCustomBean prototypeCustomBean = provider.getObject();
+```
 
+#### `javax.inject.Provdier` ObjectProvider 와 비슷한 용도로 사용 가능.
+ * get() 메서드 하나로 기능이 매우 단순
+ * 라이브러리 추가 필요
+ * 자바 표준이므로 스프링 외의 다른 컨테이너에서 사용 가능.
 
+## 4. 웹 스코프
+ * 프로토타입과는 다르게, 스프링이 종료시점까지 관리해준다. (종료 메서드를 호출해준다.)
+ * HTTP 요청당 하나씩 생성되고, 요청이 끝나면 소멸된다.
+ * 종류 : request, session, application, webSocket
+    * 사용방법 : 빈 클래스 위에 `@Scope(value = "request")`
+ * `spring-boot-starter-web` 라이브러리 추가 필요 -> 스프링부트는 내장 톰캣 서버를 활용하여 웹서버와 스프링을 함께 실행시킨다.
 
 
