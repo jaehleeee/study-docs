@@ -59,5 +59,10 @@ PrototypeCustomBean prototypeCustomBean = provider.getObject();
  * 종류 : request, session, application, webSocket
     * 사용방법 : 빈 클래스 위에 `@Scope(value = "request")`
  * `spring-boot-starter-web` 라이브러리 추가 필요 -> 스프링부트는 내장 톰캣 서버를 활용하여 웹서버와 스프링을 함께 실행시킨다.
+ * 단점은 웹 요청이 들어올때 빈이 생성되기 때문에 Spring 톰캣 시작 시점이 빈이 없다고 에러를 발생시킨다. 따라서 이 부분을 해결해야 한다.
+    * 이 부분을 해결하는 것이 프록시 설정이다.  `@Scope(value = "request", proxy = ScopedProxyMode.TARGET_CLASS)`
+    * Spring 톰캣 실행시점에 빈 대신 프록시 가짜 객체를 대신 빈에 등록해준다.
+       * 의존관계 주입에도 가짜 프록시 객체가 주입된다.
+       * 이 가짜 프록시 객체는 실제 웹 요청이 오면, 그때 내부에서 진짜 빈을 위임한다.
 
 
