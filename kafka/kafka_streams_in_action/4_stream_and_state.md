@@ -25,3 +25,68 @@
  * 이 메소드는 의미상 KStreams.mapValues() 와 동일하지만, 몇가지 에외가 있다.
     1. stateStore 인스턴스에 접근해서 작업을 완료한다는 것.
     2. punctuate() 메서드를 통해 정기적인 간격으로 작업이 수행되도록 예약하는 기능(6장에서 다룸)
+
+### 4.2.2 고객 보상의 상태 유지
+ * 3장에서는 KStream.mapValues() 메소드를 사용해 Purchase 객체를 RewardAccumulator 객체로 매핑했다.
+   *  이 RewardAccumulator 객체를 좀 리팩토링하여 상태 업데이트에 필요한 필드들을 추가했다.
+ * 기본적으로  Purchase 객체를 RewardAccumulator 객체로 매핑한다는 점은 이전과 결과는 동일하지만, stateStore를 통하여 
+
+```java
+public class RewardAccumulator {
+    private String customerId;
+    private double purchaseTotal;
+    private int totalRewardPoints;    // 누적  포인트
+    private int currentRewardPoints;
+    private int daysFromLastPurchase; // 마지막 구매 날짜
+    ...
+    
+    private RewardAccumulator(String customerId, double purchaseTotal, int rewardPoints) {
+        this.customerId = customerId;
+        this.purchaseTotal = purchaseTotal;
+        this.currentRewardPoints = rewardPoints;
+        this.totalRewardPoints = rewardPoints;   // 이번 보상 포인트를 토탈 보상 포인트에 넣어놓는다. 이후 transform에서 이전에 쌓인 누적 포인트와 += 한다. 
+    }
+    
+}
+```
+
+#### 업데이트된 규칙
+ * 고객은 달러랑 포인트를 얻고, 거래 총액은 가장 근접한 달러로 내림한다.
+ * 보상 처리 노드는 mapValues() -> transformValues() 로 변경
+ * Purchase 객체를 RewardAccumulator 객체로 변환하는데, 이때 변환기는 아래와 같다.
+
+```java
+public class PurchaseRewardTransformer implements ValueTransformer<Purchase, RewardAccumulator> {
+
+    private KeyValueStore<String, Integer> stateStore;
+    private final String storeName;
+    private ProcessorContext context;
+
+public PurchaseRewardTransformer(String storeName) {
+        Objects.requireNonNull(storeName,"Store Name can't be null");
+        this.storeName = storeName;
+    }
+    
+    // 변환기 초기화
+    @Override
+    @SuppressWarnings("unchecked")
+    public void init(ProcessorContext context) {
+        this.context = context; // processorContext에 로컬 참조 설정
+        stateStore = (KeyValueStore) this.context.getStateStore(storeName); // storeName으로 stateStore를 찾는다.
+    }
+
+    // state를 사용해 Purchase를 RewardAccumulator 로 변환하기.
+    @Override
+    public RewardAccumulator transform(Purchase value) {
+        RewardAccumulator rewardAccumulator = RewardAccumulator.builder(value).build();
+        Integer accumulatedSoFar = stateStore.get(rewardAccumulator.getCustomerId()); // 고객 ID로 최신 누적 보상 포인트 가져오기 -> previousTotalPoints
+
+        if (accumulatedSoFar != null) {
+             rewardAccumulator.addRewardPoints(accumulatedSoFar); // totalRewardPoints += previousTotalPoints; (totalRewardPoints에 이미 이번 보상 포인트가 들어가있다.)
+        }
+        stateStore.put(rewardAccumulator.getCustomerId(), rewardAccumulator.getTotalRewardPoints());
+
+        return rewardAccumulator;
+
+    }
+```
