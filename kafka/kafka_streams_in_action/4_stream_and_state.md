@@ -90,3 +90,19 @@ public PurchaseRewardTransformer(String storeName) {
 
     }
 ```
+
+
+#### 리파티셔닝
+ * 주어진 고객의 판매별 정보를 수집한다는 것은 해당 고객에 대한 모든 트랜잭션이 동일한파티션에 있어야함을 의미한다. 하지만 트랜잭션 키가 없으면 라운드 로빈 방식으로 파티션을 할당한다.
+ * 로컬 상태저장소를 이용해야 하므로, 동일한 파티션은 동일한 파티션으로 전송해야하고, 따라서 고객 id를 key 로 설정되도록 리파티셔닝해야 한다.
+ * 일반적인 리파티셔닝은 원본 레코드 키를 변경하거나 바꾼 다음 레코드를 새로운 토픽에 쓴다. 다음으로, 해당 레코드를 다시 소비한다.
+ * 하지만 카프카 스트림즈에서 리파티셔닝은 `KStreams.through()` 를 사용해 쉽게 수행 가능하다.
+    * 중간 토픽을 생성하고, 현재 KStream 인스턴스는 해당 토픽에 레코드를 기록한다. 새로운 KStream 인스턴스는 해당 소스에 대해 동일한 중간 토픽을 사용해 through() 메소드 호출로 반환된다.
+    * 중간 토픽을 사용하기 위해 내부적으로 싱크 노드와 소스 노드를 만든다.
+
+```java
+RewardsStreamPartitioner streamPartitioner = new RewardsStreamPartitioner(); //  return value.getCustomerId().hashCode() % numPartitions; 고객 ID 이용한 파티셔너
+
+KStream<String, Purchase> transByCustomerStream = purchaseKStream.through( "customer_transactions", Produced.with(stringSerde, purchaseSerde, streamPartitioner));
+```
+
