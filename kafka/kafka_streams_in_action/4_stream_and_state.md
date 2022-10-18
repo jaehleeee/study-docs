@@ -160,4 +160,175 @@ builder.addStateStore(storeBuilder); // 상태 저장소를 토폴로지에 추�
 
 
 ## 4.4 추가적인 통찰을 위해 스트림 조인하기
+ * 새로운 이벤트를 만들기 위해 동일한 키를 이용해 스트림 2개에서 각기 다른 이벤트를 가져와서 결합한다.
+ * 서로 20분 이내의 타임스탬프가 있는 구매 기록을 조인하여 무료 커피 쿠폰을 발행하는 예시를 생각하자.
 
+![image](https://user-images.githubusercontent.com/48814463/196559580-fcb27e98-d52b-4ccc-a1b9-04ee32cb448e.png)
+
+
+![image](https://user-images.githubusercontent.com/48814463/196559591-955548b3-99c1-4025-ae05-581822c82b7d.png)
+
+### 4.4.1 데이터 설정
+ * predicate를 사용해 유입하는 레코드를 배열로 매치한다.
+ * 어느 predicate에도 매치되지 않은 레코드는 제거한다.
+
+```java
+Predicate<String, Purchase> coffeePurchase = (key, purchase) -> purchase.getDepartment().equalsIgnoreCase("coffee");
+Predicate<String, Purchase> electronicPurchase = (key, purchase) -> purchase.getDepartment().equalsIgnoreCase("electronics");
+
+int COFFEE_PURCHASE = 0;
+int ELECTRONICS_PURCHASE = 1;
+
+KStream<String, Purchase> transactionStream = builder.stream( "transactions", Consumed.with(Serdes.String(), purchaseSerde)).map(custIdCCMasking);
+
+KStream<String, Purchase>[] branchedStream = transactionStream.selectKey((k,v)-> v.getCustomerId()).branch(coffeePurchase, electronicPurchase);
+```
+
+### 4.4.2 조인을 위한 customer id 키 생성
+```java
+// KStream<String, Purchase>[] branchedStream = transactionStream.branch(coffeePurchase, electronicPurchase);
+KStream<String, Purchase>[] branchedStream = transactionStream.selectKey((k,v)-> v.getCustomerId()).branch(coffeePurchase, electronicPurchase);
+```
+#### 리파티셔닝 하지 않는 이유
+ * 카프카 스트림즈에서 새로운 키를 생성하게 하는 메서드(selectkey 등)를 호출할 때마다 내부 Boolean 플래스가 true가 된다.
+ * 이 플래그 설정을 통해 join, reduce 또는 집계 연산을 수행하면 자동으로 리파티셔닝된다.
+
+
+### 4.4.3 조인 구성
+![image](https://user-images.githubusercontent.com/48814463/196560482-40f6316a-ae46-4a2f-99b3-ab889034f5bc.png)
+
+ * 조인 레코드를 만들려면 ValueJoiner 인스턴스를 생성해야 한다.
+ * ValueJoiner는 2개 객체를 가져와서 Correleate 객체를 반환해준다.
+
+```java
+public class PurchaseJoiner implements ValueJoiner<Purchase, Purchase, CorrelatedPurchase> {
+
+    @Override
+    public CorrelatedPurchase apply(Purchase purchase, Purchase otherPurchase) {
+
+        CorrelatedPurchase.Builder builder = CorrelatedPurchase.newBuilder();
+
+        Date purchaseDate = purchase != null ? purchase.getPurchaseDate() : null;
+        Double price = purchase != null ? purchase.getPrice() : 0.0;
+        String itemPurchased = purchase != null ? purchase.getItemPurchased() : null;
+
+        Date otherPurchaseDate = otherPurchase != null ? otherPurchase.getPurchaseDate() : null;
+        Double otherPrice = otherPurchase != null ? otherPurchase.getPrice() : 0.0;
+        String otherItemPurchased = otherPurchase != null ? otherPurchase.getItemPurchased() : null;
+
+        List<String> purchasedItems = new ArrayList<>();
+
+        if (itemPurchased != null) {
+            purchasedItems.add(itemPurchased);
+        }
+
+        if (otherItemPurchased != null) {
+            purchasedItems.add(otherItemPurchased);
+        }
+
+        String customerId = purchase != null ? purchase.getCustomerId() : null;
+        String otherCustomerId = otherPurchase != null ? otherPurchase.getCustomerId() : null;
+
+        builder.withCustomerId(customerId != null ? customerId : otherCustomerId)
+                .withFirstPurchaseDate(purchaseDate)
+                .withSecondPurchaseDate(otherPurchaseDate)
+                .withItemsPurchased(purchasedItems)
+                .withTotalAmount(price + otherPrice);
+
+        return builder.build();
+    }
+}
+
+```
+
+
+#### 조인 사용
+```java
+KStream<String, Purchase> coffeeStream = branchesStream[COFFEE_PURCHASE];
+KStream<String, Purchase> electronicsStream = branchesStream[ELECTRONICS_PURCHASE];
+
+ValueJoiner<Purchase, Purchase, CorrelatedPurchase> purchaseJoiner = new PurchaseJoiner();
+JoinWindows twentyMinuteWindow =  JoinWindows.of(60 * 1000 * 20); // 조인할 두 객체 사이 최대 시간 차이
+
+KStream<String, CorrelatedPurchase> joinedKStream = coffeeStream.join(electronicsStream,
+                                                                     purchaseJoiner,
+                                                                     twentyMinuteWindow,
+                                                                     Joined.with(stringSerde,
+                                                                                 purchaseSerde,
+                                                                                 purchaseSerde));
+```
+
+#### 이벤트 순서를 지정하는 JoinWindows() 2개의 추가 메서드
+ * JoinWindows.after
+    * 예시 `streamA.join(streamB, ... , JoinWindows.after(5000), ...)`
+    * streamB가 streamA 이후 최대 5초임을 명시, 윈도 시작 시간 경게는 변경되지 않는다.
+ * JoinWindows.before
+    * 예시 `streamA.join(streamB, ... , JoinWindows.before(5000), ...)`
+    * streamB가 streamA 이전 최대 5초임을 명시, 윈도 종료 시간 경게는 변경되지 않는다.
+
+#### 코파티셔닝
+ * 카프카 스트림즈 조인을 수행하려면 모든 조인 참가자가 코파티셔닝되어 있음을 보장해야 한다.
+ * 이는 같은 수의 참가자가 있고 같은 타입의 키가 있음을 의미한다.
+ * 그리고 카프카 스트림즈 애플리케이션을 시작할때 조인과 관련된 토픽이 동일한 수의 파티션을 갖는지 확인한다.
+    * 불일치하면 TopologyBuilderException이 발생한다.
+ * 조인과 관련된 키가 동일한 타입인지 확인하는 것은 개발자의 책임이다.
+
+#### 4.4.4 그 밖의 조인 옵션
+ * outer join
+    * 항상 레코드를 출력하지만 전달된 조인 레코드는 조인에서 명시한 2 이벤트(스트림)를 모두 포함하지 않을수도 있다. 
+    * coffeeStream.outerJoin(electonicsStream, ...)
+ * left outer join
+    * 조인 윈도에서 오른쪽 스트림에서만 이벤트가 있으면 출력이 전혀 없다.
+    * coffeeStream.leftJoin(electonicsStream, ...)
+
+
+## 4.5 타임스탬프
+ * 이벤트 처리에서 타임스탬프 번주는 3가지
+    1. event time : 이벤트가 발생해쓸때 설정한 타임스탬프
+    2. ingestion time : 데이터가 처음 파이프라인에 들어갈때 설정. 카프카 브로커가 설정한 타임스탬프를 인제스트 시간으로 생각할 수 있다.
+    3. processing time : 데이터가 처음 처리 파이프라인을 통과하기 시작할 때 설정된 타임스탬프
+
+#### 타임스탬프 처리 시맨틱
+1. 실제 데이터 객체에 포함된 타임스탬프
+2. producer record(event time) 생성시 레코드 메타 데이터에 설정된 타임스탬프
+3. 카프카 스트림즈 애플리케이션이 레코드를 인제스트할때 현재 타임스탬프를 사용
+
+다양한 처리 시맨틱을 가능하게 하기 위해 카프카 스트림즈는 하나의 추상 구현과 4가지 구현체가 있는 TimestampExtractor 인터페이스를 제공한다.
+레코드 값에 내장된 타임스탬프로 작업해야할 경우 Custom TimestampExtractor를 구현해야 한다.
+
+### 4.5.1 제공된 TimestampExctractor 구현
+![image](https://user-images.githubusercontent.com/48814463/196563625-22997d4b-e539-4d9c-ad02-eb3da6d67c45.png)
+
+ * 제공된 TimestampExctractor 구현은 거의 모든 부분 메시지 메타 데이터에 있는 프로듀서나 브로커가 설정한 타임스탬프를 다룬다.
+ * 점선의 사각형이 ConsumerRecord 이고, 이 객체의 설정에 따라 프로듀서나 브로커가 타임스탬프를 설정한다.
+ * ConsumerRecord에서 타임스탬프 추출하는 핵심 기능을 제공하는 추상 클래스가 ExtractRecordMetadataTimestamp 이다.
+ * 이 추상클래스를 확장한 3가지 클래스가 있다. 
+    * FailOninvalidTimestmp : 유효하지 않은 타임스탬프의 경우 예외 발생시킴
+    * LogAndSkipInvalidTimestamp : 유효하지 않은 타임스탬프 반환하고, 유효하지 않은 타임스탬프로 인해 레코드 삭제된다는 경고 메시지 남김.
+    * UsePreviouseTimeOnInvalidTimestamp : 유효하지 않은 타임스탬프의 경우 마지막으로 추출한 유효한 타임스탬프를 반환.
+
+### 4.5.2 WallclockTimestampExtractor
+ * process-time semantics 제공.
+ * 어떤 타임스태프도 추출하지 않는다. 대신 System.currentTimeMillis() 메소드를 호출해 밀리초 단위의 시간을 반환
+
+### 4.5.3 Custom TimestampExtractor
+
+```java
+public class TransactionTimestampExtractor implements TimestampExtractor {
+
+    @Override
+    public long extract(ConsumerRecord<Object, Object> record, long previousTimestamp) {
+        Purchase purchasePurchaseTransaction = (Purchase) record.value();
+        return purchasePurchaseTransaction.getPurchaseDate().getTime();
+    }
+}
+
+```
+
+
+### 4.5.4 타임스탬프 명시
+ * 속성을 설정하지 않았다면 FailOnInvalidTimestamp 가 기본설정이다.
+ * 설정 첫번째 방법은 카프카 스트림즈 전체 설정으로 설정
+    *  `props.put(StreamsConfig.DEFAULT_TIMESTAMP_EXTRACTOR_CLASS_CONFIG, TransactionTimestampExtractor.class);`
+ * 두번째 방법은 컨슈머에 설정. 입력 소스마다 둘 수 있다는 장점.
+    * `Consumed.with(stringSerde, stringSerde).withTimestampExtractor(new TransactionTimestampExtractor())`
