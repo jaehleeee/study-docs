@@ -60,6 +60,157 @@ KTable 이해를 위한 2가지 질문
 
 
 ## 5.3 집계와 윈도 작업
- * 
+ * 스트리밍 데이터를 다룰 경우 집계와 그룹화는 필수 도구다.
+
+주식 거래에 대한 메타 데이터 중 거래량 데이터만 매핑 후 주식 코드로 그룹핑하는 코드.
+```java
+KTable<String, ShareVolume> shareVolume = builder.stream(STOCK_TRANSACTIONS_TOPIC,
+       Consumed.with(stringSerde, stockTransactionSerde)
+               .withOffsetResetPolicy(EARLIEST))
+       .mapValues(st -> ShareVolume.newBuilder(st).build())
+       .groupBy((k, v) -> v.getSymbol(), Serialized.with(stringSerde, shareVolumeSerde))
+       .reduce(ShareVolume::sum); // <- 이 결과 KTable
+```
+
+#### 레코드 그릅화 메서드 : GroupByKey와 GroupBy 차이점
+ * GroupByKey 는 KStream이 이미 null 이 아닌 키를 갖고 있을 경우 사용. `리파티셔닝 필요` 플래그가 설정되지 않는다.
+ * GroupBy는 키가 변경될 수 있다고 가정한다. 그래서 자동으로 리파티셔닝 된다.
+ * 가능하면 GroupBy 보다는 GroupByKey 사용하는 편이 낫다.
+
+#### KTable을 가져와서 상위 5개 집계 요약 수행하는 코드
+```java
+Comparator<ShareVolume> comparator = (sv1, sv2) -> sv2.getShares() - sv1.getShares();
+
+FixedSizePriorityQueue<ShareVolume> fixedQueue = new FixedSizePriorityQueue<>(comparator, 5); // 상위 5개만 담을 큐
+
+ValueMapper<FixedSizePriorityQueue, String> valueMapper = fpq -> { // 집게를 리포팅에 사용되는 문자열로 변환하는 mapper
+   StringBuilder builder = new StringBuilder();
+   Iterator<ShareVolume> iterator = fpq.iterator();
+   int counter = 1;
+   while (iterator.hasNext()) {
+       ShareVolume stockVolume = iterator.next();
+       if (stockVolume != null) {
+           builder.append(counter++).append(")").append(stockVolume.getSymbol())
+                   .append(":").append(numberFormat.format(stockVolume.getShares())).append(" ");
+       }
+   }
+   return builder.toString();
+};
+
+StreamsBuilder builder = new StreamsBuilder();
+
+KTable<String, ShareVolume> shareVolume = builder.stream(STOCK_TRANSACTIONS_TOPIC, // 거래 데이터 -> 거래 데이터 -> 거래량 집계하여 KTable 생성.
+       Consumed.with(stringSerde, stockTransactionSerde)
+               .withOffsetResetPolicy(EARLIEST))
+       .mapValues(st -> ShareVolume.newBuilder(st).build())
+       .groupBy((k, v) -> v.getSymbol(), Serialized.with(stringSerde, shareVolumeSerde))
+       .reduce(ShareVolume::sum);
 
 
+shareVolume.groupBy((k, v) -> KeyValue.pair(v.getIndustry(), v), Serialized.with(stringSerde, shareVolumeSerde))
+       .aggregate(() -> fixedQueue,
+               (k, v, agg) -> agg.add(v),    // 새 업데이트 추가용
+               (k, v, agg) -> agg.remove(v), // 기존 업데이트 제거용
+               Materialized.with(stringSerde, fixedSizePriorityQueueSerde))
+       .mapValues(valueMapper)
+       .toStream().peek((k, v) -> LOG.info("Stock volume by industry {} {}", k, v))  // 콘솔에 결과 남기기.
+       .to("stock-volume-by-company", Produced.with(stringSerde, stringSerde)); // 토픽에 결과 쓰기
+```
+
+### 5.3.2 윈도 연산
+ * 어떨 때는 주어진 시간 범위에 대해서만 작업을 수행할 필요가 있다. (예, 최근 10분동안 특정 회사 주식 거래가 얼마나 발생했는가 등)
+
+### 윈도 유형
+1. 세션 윈도
+2. 텀블링 윈도
+3. 슬라이딩 윈도 or 호핑 윈도
+
+#### 세션 윈도
+ * 시간에 엄격하게 제한 받지 않고, 사용자의 활동에 관련.
+ * 비활성화 기간으로 세션 윈도를 설명한다.
+   * 현재 활성화된 세션 시작시간보다 비활성화 시간 이내에 도달하는 레코드를 세션내 윈도우로 포함시킨다.
+   * 만약 비활성화 간격을 넘어선다면, 새로운 세션을 만든다.
+
+```java
+ KTable<Windowed<TransactionSummary>, Long> customerTransactionCounts =
+     builder.stream(STOCK_TRANSACTIONS_TOPIC, Consumed.with(stringSerde, transactionSerde).withOffsetResetPolicy(LATEST))
+    .groupBy((noKey, transaction) -> TransactionSummary.from(transaction),
+            Serialized.with(transactionKeySerde, transactionSerde))
+     // session window comment line below and uncomment another line below for a different window example
+    .windowedBy(SessionWindows.with(twentySeconds).until(fifteenMinutes)).count();
+```
+![image](https://user-images.githubusercontent.com/48814463/199620323-2ff9df03-8905-490a-85e6-c7b736b3a429.png)
+
+#### 비활성 간격 20초인 경우 예시
+1. 레코드 1 도착 : 세션시작시간 = 세션종료시간 = 00:00:00
+2. 레코드 2 도착 : 타임스탬프 +- 20초 로 세션을 찾는다. 레코드 1을 찾았으므로 레코드1과 병합. 세션1은 00:00:00 ~ 00:00:15
+3. 레코드 3 도착 : 00:00:30 ~ 00:01:10 사이에 세션이 없으므로 새로운 세션 추가. 이 세션은 세션시작시간 = 세션종료시간 = 00:00:50
+4. 레코드 4 도착 : 23:59:45 ~ 00:00:25 사이 세션 검색. 레코드 1,2 발견. 00:00:00 ~ 00:00:15 인 레코드 1,2,4 모두 병합된다.
+
+
+#### 텀블링 윈도우
+ * 지정한 기간 내의 이벤트 추적.
+```java
+//Tumbling window with timeout 15 minutes
+KTable<Windowed<TransactionSummary>, Long> customerTransactionCounts =
+   ...
+   .windowedBy(TimeWindows.of(twentySeconds).until(fifteenMinutes)).count();
+
+//Tumbling window with default timeout 24 hours
+KTable<Windowed<TransactionSummary>, Long> customerTransactionCounts =
+   ...
+   .windowedBy(TimeWindows.of(twentySeconds)).count();
+```
+
+#### 슬라이딩 또는 호핑 윈도우
+ * 지정한 기간 내의 이벤트 추적하는 방식은 텀블링과 비슷하지만 한가지 차이점이 있다.
+ * 최근 이벤트를 처리할 새 윈도를 시작하기 전에 그 윈도 전체 시간을 기다리지 않는다.
+ * 슬라이딩 윈도는 전체 윈도 유지 기간보다는 더 짧은 간격 동안 기다린 후 새 연산을 수행한다.
+ * 다만 데이터 중복이 발생한ㄷ.ㅏ
+
+![image](https://user-images.githubusercontent.com/48814463/199621356-22f79f48-49b0-457f-8415-63de583459b3.png)
+
+```java
+//Hopping window 
+KTable<Windowed<TransactionSummary>, Long> customerTransactionCounts =
+   ...
+   .windowedBy(TimeWindows.of(twentySeconds).advanceBy(fiveSeconds).until(fifteenMinutes)).count();
+```
+
+### 5.3.3 KStream과 KTable 조인하기
+ * KStream을 왼쪽에 두고 KTable을 leftJoin의 파라미터로 하여 조인하는게 좋다.
+
+
+### 5.3.4 GlobalKTable
+ * KStream간 조인이든, KStream, KTable 간 결합이든 키를 새 타입으로 매핑할떄 리파티셔닝이 필요하다.
+ * 리파티셔닝은 공짜가 아니며, 추가 오버헤드가 발생한다.
+ * 어떤 경우 조인하려는 룩업 데이터는 비교적 작아서 이 조회 데이터 전체 사본을 개별 노드의 로컬에 배치할 수도 있다. 조회 데이터가 상당히 작을 경우 카프카 스트림즈는 GlobalKTable fmf tkdydgkf tn dlTek.
+    * 애플리케이션이 모든 노드에 동일한 데이터를 복제한다.
+    * 조회할 데이터 키로 파티셔닝할 필요없고, 키 없는 조인도 가능하다.
+
+```java
+StreamsBuilder builder = new StreamsBuilder();
+long twentySeconds = 1000 * 20;
+
+KeyValueMapper<Windowed<TransactionSummary>, Long, KeyValue<String, TransactionSummary>> transactionMapper = (window, count) -> {
+   TransactionSummary transactionSummary = window.key();
+   String newKey = transactionSummary.getIndustry();
+   transactionSummary.setSummaryCount(count);
+   return KeyValue.pair(newKey, transactionSummary);
+};
+
+KStream<String, TransactionSummary> countStream =
+       builder.stream( STOCK_TRANSACTIONS_TOPIC, Consumed.with(stringSerde, transactionSerde).withOffsetResetPolicy(LATEST))
+               .groupBy((noKey, transaction) -> TransactionSummary.from(transaction), Serialized.with(transactionSummarySerde, transactionSerde))
+               .windowedBy(SessionWindows.with(twentySeconds)).count()
+               .toStream().map(transactionMapper);
+
+// GlobalKTable 생성
+GlobalKTable<String, String> publicCompanies = builder.globalTable(COMPANIES.topicName());  // 주식 종목 코드로 회사를 찾는다.
+GlobalKTable<String, String> clients = builder.globalTable(CLIENTS.topicName());            // 고객 ID로 고객 이름을 얻는다.
+
+// GlobalKTable 조인
+countStream.leftJoin(publicCompanies, (key, txn) -> txn.getStockTicker(),TransactionSummary::withCompanyName)
+    .leftJoin(clients, (key, txn) -> txn.getCustomerId(), TransactionSummary::withCustomerName)
+    .print(Printed.<String, TransactionSummary>toSysOut().withLabel("Resolved Transaction Summaries"));
+```
