@@ -39,7 +39,7 @@ public class TraceId {
 
 ## ThreadLocal 소개
  * 쓰레드 로컬은 해당 쓰레드만 접근할 수 있는 특별한 저장소를 말한다.
- * 사용 방법은 인스턴스 필드를 스레드 로컬 타임으로 변경하면 된다.
+ * 사용 방법은 인스턴스 필드를 스레드 로컬 타입으로 변경하면 된다.
 ```java
 public class NameStoreService {
     // private String name; // <- 동시성 문제 발생 O
@@ -51,5 +51,8 @@ public class NameStoreService {
  * 값 제거 : `ThreadLocal.remove()`
     * 해당 쓰레드가 쓰레드로컬을 모두 사용하고 나면 반드시 remove를 통해 저장된 값을 제거해줘야 한다. (메모리 누수 등의 문제 발생할 수 있다.)
 
+### 스레드 로컬 주의사항
+ * 쓰레드 로컬 값을 사용 후 제거하지 않고 그냥 두면, 쓰레드 풀을 사용하는 경우 심각한 문제 발생
+    * 해당 쓰레드가 재사용되면서 쓰레드 로컬 값도 다시 사용되는 문제 발생.
 
 
