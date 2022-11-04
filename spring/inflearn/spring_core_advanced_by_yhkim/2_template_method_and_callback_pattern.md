@@ -23,7 +23,12 @@
 ```
 
 ## 2.1 템플릿 메서드 패턴
-![image](https://user-images.githubusercontent.com/48814463/199879225-a33ac571-056d-48c8-a968-ead82314a77c.png)
+### 템플릿 메서드 패턴 이란?
+ * 특정 기능 수행을 서브 클래스로 캡슐화해서 전체 일을 수행하는 구조는 바꾸지 않으면서, 특정 기능은 바꿀 수 있는 패턴.
+ * 전제적으로 동일하면서, 부분적으로만 다른 구문으로 구성된 메서드를 구성하여 코드의 중복을 최소화할때 유용.
+
+![image](https://user-images.githubusercontent.com/48814463/199909121-685c73ad-e7d7-4aa1-92ae-f9645cbd749c.png)
+(이미지 출처 : https://gmlwjd9405.github.io/2018/07/13/template-method-pattern.html)
 
  * 핵심 기능과 부가 기능의 분리 하는 방법은, abstract class를 만들어서 상속하는 것이다.
  * 템플릿은 기준이되는 거대한 틀이다.
