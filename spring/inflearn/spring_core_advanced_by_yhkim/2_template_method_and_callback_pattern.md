@@ -28,8 +28,9 @@
  * 전제적으로 동일하면서, 부분적으로만 다른 구문으로 구성된 메서드를 구성하여 코드의 중복을 최소화할때 유용.
 
 ![image](https://user-images.githubusercontent.com/48814463/199909121-685c73ad-e7d7-4aa1-92ae-f9645cbd749c.png)
-(이미지 출처 : https://gmlwjd9405.github.io/2018/07/13/template-method-pattern.html)
-
+<br>(이미지 출처 : https://gmlwjd9405.github.io/2018/07/13/template-method-pattern.html)
+<br>
+<br>
  * 핵심 기능과 부가 기능의 분리 하는 방법은, abstract class를 만들어서 상속하는 것이다.
  * 템플릿은 기준이되는 거대한 틀이다.
  * 틀에 변하지 않는 부가 기능을 몰아두고, 변하는 핵심 기능들을 별도로 호출하여 해결한다.
