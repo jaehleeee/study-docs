@@ -91,7 +91,7 @@ public class BeerPurchaseProcessor extends AbstractProcessor<String, BeerPurchas
           builder.currency(DOLLARS);
           builder.totalSale(Double.parseDouble(decimalFormat.format(transactionCurrency.convertToDollars(internationalSaleAmount))));
           dollarBeerPurchase = builder.build();
-          context().forward(key, dollarBeerPurchase, internationalSalesNode);
+          context().forward(key, dollarBeerPurchase, internationalSalesNode); // context() 메서드가 반환하는 ProcessorContext를 사용해 레코드를 international 자식 노드에 전달.
       } else {
           context().forward(key, beerPurchase, domesticSalesNode);
       }
