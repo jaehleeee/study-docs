@@ -154,11 +154,12 @@ public class StockPerformanceProcessor extends AbstractProcessor<String, StockTr
 ```
 
 #### Punctuation 시맨틱
+1. StreamTask는 가장 작은 타임스탬프를 PartitionGroup으로 가져온다. PartitionGroup은 주어진 StreamThread를 위한 파티션 집합이고, 이 그룹의 모든 파티션으니 정보를 갖고 있다.
+2. 레코드를 
 
-
-![image](https://user-images.githubusercontent.com/48814463/200096279-e19cf8c8-515e-4085-8825-b887bbc564fd.png)
+<img src="https://user-images.githubusercontent.com/48814463/200096279-e19cf8c8-515e-4085-8825-b887bbc564fd.png" width="50%" height="50%"/>
 
 
 ### 6.3.2 proccesor 메소드
 
-![image](https://user-images.githubusercontent.com/48814463/200096286-8d9a5e5f-3192-4525-a714-05e8fe0141b5.png)
+<img src="https://user-images.githubusercontent.com/48814463/200096286-8d9a5e5f-3192-4525-a714-05e8fe0141b5.png" width="50%" height="50%"/>
