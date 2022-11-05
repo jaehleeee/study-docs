@@ -102,6 +102,9 @@ public class BeerPurchaseProcessor extends AbstractProcessor<String, BeerPurchas
 
 
 ## 6.3 주식 프로세서로 프로세서 API 자세히 살펴보기
+ * 최근 거래된 주식 거래에서, 가격 또는 거래량이 2% 이상 증가/감소 했는가?
+    * 증가했다면 팔고, 감소했다면 판다.
+    * 변화율이 2% 이하라면, 조건이 변경될때까지 보류 
 
 ```java
 Topology topology = new Topology();
@@ -124,9 +127,9 @@ topology.addProcessor("stocks-printer", new KStreamPrinter("StockPerformance"), 
 ```
 
  * 이전 예제에서는 ProcessorContext 초기화를 위해 AbstractProcessor에서 기본 제공하는 init을 그대로 사용했지만, 이번에는 상태 저장소를 셋업해야 하므로 override 하영 사용한다.
+ * `Puctuator` 란? 예약한 스케쥴 프로세서 로직의 실행을 처리하는 콜백 인터페이스.
 
 ```java
-
 public class StockPerformanceProcessor extends AbstractProcessor<String, StockTransaction> {
 
     private KeyValueStore<String, StockPerformance> keyValueStore;
@@ -145,7 +148,17 @@ public class StockPerformanceProcessor extends AbstractProcessor<String, StockTr
                                                                                context(),
                                                                                keyValueStore);
 
-        context().schedule(10000, PunctuationType.WALL_CLOCK_TIME, punctuator); // 10초마다 punctuate 호출하도록 스케쥴
+        context().schedule(10000, PunctuationType.WALL_CLOCK_TIME, punctuator); // 10초마다 WALL_CLOCK_TIME 기반하여 punctuate 호출하도록 스케쥴
     }
 }
 ```
+
+#### Punctuation 시맨틱
+
+
+![image](https://user-images.githubusercontent.com/48814463/200096279-e19cf8c8-515e-4085-8825-b887bbc564fd.png)
+
+
+### 6.3.2 proccesor 메소드
+
+![image](https://user-images.githubusercontent.com/48814463/200096286-8d9a5e5f-3192-4525-a714-05e8fe0141b5.png)
