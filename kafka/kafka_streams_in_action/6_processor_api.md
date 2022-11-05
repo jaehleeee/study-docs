@@ -102,3 +102,50 @@ public class BeerPurchaseProcessor extends AbstractProcessor<String, BeerPurchas
 
 
 ## 6.3 주식 프로세서로 프로세서 API 자세히 살펴보기
+
+```java
+Topology topology = new Topology();
+String stocksStateStore = "stock-performance-store";
+double differentialThreshold = 0.02; // 2%기준 임계값
+
+// 인메모리 키/값 상태 저장소 생성
+KeyValueBytesStoreSupplier storeSupplier = Stores.inMemoryKeyValueStore(stocksStateStore);
+
+// 토폴로지에 추가할 storeBuilder 생성
+storeBuilder<KeyValueStore<String, StockPerformance>> storeBuilder = Stores.keyValueStoreBuilder(storeSupplier, Serdes.String(), stockPerformanceSerde);
+
+topology.addSource("stocks-source", stringDeserializer, stockTransactionDeserializer,"stock-transactions")
+        .addProcessor("stocks-processor", () -> new StockPerformanceProcessor(stocksStateStore, differentialThreshold), "stocks-source")
+        .addStateStore(storeBuilder,"stocks-processor")
+        .addSink("stocks-sink", "stock-performance", stringSerializer, stockPerformanceSerializer, "stocks-processor");
+
+
+topology.addProcessor("stocks-printer", new KStreamPrinter("StockPerformance"), "stocks-processor");
+```
+
+ * 이전 예제에서는 ProcessorContext 초기화를 위해 AbstractProcessor에서 기본 제공하는 init을 그대로 사용했지만, 이번에는 상태 저장소를 셋업해야 하므로 override 하영 사용한다.
+
+```java
+
+public class StockPerformanceProcessor extends AbstractProcessor<String, StockTransaction> {
+
+    private KeyValueStore<String, StockPerformance> keyValueStore;
+    ...
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public void init(ProcessorContext processorContext) {
+        super.init(processorContext);
+
+        // 토폴로지 구축시 생성된 상태 저장소 조회
+        keyValueStore = (KeyValueStore) context().getStateStore(stateStoreName);
+
+        // 스케쥴링된 프로세싱을 처리하기 위한 punctuator 초기화
+        StockPerformancePunctuator punctuator = new StockPerformancePunctuator(differentialThreshold,
+                                                                               context(),
+                                                                               keyValueStore);
+
+        context().schedule(10000, PunctuationType.WALL_CLOCK_TIME, punctuator); // 10초마다 punctuate 호출하도록 스케쥴
+    }
+}
+```
