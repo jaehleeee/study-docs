@@ -148,14 +148,19 @@ public class StockPerformanceProcessor extends AbstractProcessor<String, StockTr
                                                                                context(),
                                                                                keyValueStore);
 
-        context().schedule(10000, PunctuationType.WALL_CLOCK_TIME, punctuator); // 10초마다 WALL_CLOCK_TIME 기반하여 punctuate 호출하도록 스케쥴
+        context().schedule(10000, PunctuationType.WALL_CLOCK_TIME, punctuator); // 10초마다 WALL_CLOCK_TIME 기반하여 punctuate 호출하도록 스케쥴. 레코드의 시간을 사용하는 STREAM_TIME도 있다.
     }
 }
 ```
 
 #### Punctuation 시맨틱
-1. StreamTask는 가장 작은 타임스탬프를 PartitionGroup으로 가져온다. PartitionGroup은 주어진 StreamThread를 위한 파티션 집합이고, 이 그룹의 모든 파티션으니 정보를 갖고 있다.
-2. 레코드를 
+(Kafka Streams는 Kafka Consumer를 이용해서 Kafka Broker에서 메세지를 받아온다. 그리고 받아온 메세지 원본을 각 StreamTask의 PartitionGroup에다가 각각 저장해둔다.)
+1. StreamTask는 가장 작은 타임스탬프를 PartitionGroup으로 가져온다. PartitionGroup은 주어진 StreamThread를 위한 파티션 집합이고, 이 그룹의 모든 파티션은 타임스탬프 정보를 갖고 있다.
+2. 레코드를 처리하는 동안, StreamThread는 StreamTask를 반복하고, 각 태스크는 펑추에이션을 사용할 수 있는 개별 프로세서를 위해 punctuate 메서드를 호출할 것이다.
+3. 최근 실행한 punctuate 메서드의 타임스탬프가 PartitionGroup에서 가져온 타임스탬프보다 작거나 같다면, 카프카 스트림즈는 프로세서의 punctuate 메서드를 호출한다.
+
+-> 여기서 핵심은 TimestampExtractor를 통해 타임스탬프를 증가시킨다는 것인데, 그래서 일정 주기로 데이터가 도달만 한다면 일관되게 punctuate 호출한다.
+-> 정기적으로 수행을 원한다면 시스템 시간을 활용, 유입 데이터에서만 처리를 원한다면 스트림 시간 시맨틱을 사용하자.
 
 <img src="https://user-images.githubusercontent.com/48814463/200096279-e19cf8c8-515e-4085-8825-b887bbc564fd.png" width="50%" height="50%"/>
 
