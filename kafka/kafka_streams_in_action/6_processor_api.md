@@ -165,6 +165,56 @@ public class StockPerformanceProcessor extends AbstractProcessor<String, StockTr
 <img src="https://user-images.githubusercontent.com/48814463/200096279-e19cf8c8-515e-4085-8825-b887bbc564fd.png" width="50%" height="50%"/>
 
 
-### 6.3.2 proccesor 메소드
+### 6.3.2 process 메소드
+
+#### 주식 성과를 처리하는 몇가지 과정
+1. 레코드가 들어오면, 주식 종목 코드에 관한 StockPerformance 객체와 관련있는지 상태 저장소를 확인
+2. 이 저장소에 StockPerformance 객체가 없다면 생성한다. 그런 다음, StockPerformance 인스턴스는 주식 가격과 거래량을 추가하고 계산을 업데이트한다.
+3. 20회 이상 거래가 있는 주식은 계산을 시작한다.
+
+```java
+@Override
+public void process(String symbol, StockTransaction transaction) {
+    if (symbol != null) {
+        StockPerformance stockPerformance = keyValueStore.get(symbol); // 이전 StockPerformance 조회
+
+        if (stockPerformance == null) {
+            stockPerformance = new StockPerformance();
+        }
+
+        stockPerformance.updatePriceStats(transaction.getSharePrice()); // 가격 통계 업데이트
+        stockPerformance.updateVolumeStats(transaction.getShares()); // 거래량 통계 업데이트
+        stockPerformance.setLastUpdateSent(Instant.now()); // 최근 업데이트한 타임스탬프 설정
+
+        keyValueStore.put(symbol, stockPerformance); // 업데이트한 stockPerformance를 상태저장소에 저장
+    }
+}
+```
+
+```java
+public class StockPerformance {
+
+    ...
+
+    public void updatePriceStats(double currentPrice) {
+        this.currentPrice = currentPrice;
+        priceDifferential = calculateDifferentialFromAverage(currentPrice, currentAveragePrice);
+        currentAveragePrice = calculateNewAverage(currentPrice, currentAveragePrice, sharePriceLookback);
+    }
+
+    public void updateVolumeStats(int currentShareVolume) {
+        this.currentShareVolume = currentShareVolume;
+        shareDifferential = calculateDifferentialFromAverage((double) currentShareVolume, currentAverageVolume);
+        currentAverageVolume = calculateNewAverage(currentShareVolume, currentAverageVolume, shareVolumeLookback);
+    }
+    
+    ...
+}
+```
 
 <img src="https://user-images.githubusercontent.com/48814463/200096286-8d9a5e5f-3192-4525-a714-05e8fe0141b5.png" width="50%" height="50%"/>
+
+### 6.3.3 펑추에이터 실행
+ * 
+
+
