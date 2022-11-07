@@ -343,7 +343,7 @@ public void punctuate(long timestamp) {
 }
 ```
 
-<img src="https://user-images.githubusercontent.com/48814463/200096286-8d9a5e5f-3192-4525-a714-05e8fe0141b5.png" width="50%" height="50%"/>
+<img src="https://user-images.githubusercontent.com/48814463/200435880-8c563b9e-e1c2-48cb-b8bb-27973bf6c89c.png" width="50%" height="50%"/>
 
 
 ## 6.5 프로세서 API와 카프카 스트림즈 API 통합하기
