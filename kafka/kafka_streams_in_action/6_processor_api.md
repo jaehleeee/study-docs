@@ -215,6 +215,137 @@ public class StockPerformance {
 <img src="https://user-images.githubusercontent.com/48814463/200096286-8d9a5e5f-3192-4525-a714-05e8fe0141b5.png" width="50%" height="50%"/>
 
 ### 6.3.3 펑추에이터 실행
- * 
+ * 상태저장소에 있는 키/밸류 쌍을 이터레이터로 조회해서 미리 정해둔 임계값을 넘어가면 이 레코드를 다운스트림에 전달.
+
+```java
+@Override
+public void punctuate(long timestamp) {
+    KeyValueIterator<String, StockPerformance> performanceIterator = keyValueStore.all(); // 상태저장소에 있는 모든 StockPerformance 조회
+
+    while (performanceIterator.hasNext()) {
+        KeyValue<String, StockPerformance> keyValue = performanceIterator.next();
+        String key = keyValue.key;
+        StockPerformance stockPerformance = keyValue.value;
+
+        if (stockPerformance != null) {
+            if (stockPerformance.priceDifferential() >= differentialThreshold ||
+                    stockPerformance.volumeDifferential() >= differentialThreshold) {
+                context.forward(key, stockPerformance); // 임계값에 도달했거나 초과했다면 이 레코드를 전달.
+            }
+        }
+    }
+}
+```
+
+## 6.4 코그룹(CoGroup) 프로세서
+ * 이제는 일대일 조인 대신 공통 키로 조인한 2개의 데이터 컬렉션인 데이터의 코그릅으로 비슷한 유형의 분석을 하려고 한다.
+ * `주식 종목 코드를 클릭하는 이벤트`와 `사용자의 주식 구매` 사이를 분석해보자.
+ * 두 스트림에 레코드가 도착하기를 기다리지 않고, 지정된 시간이 지나면 종목 코드에 대해 클릭 이벤트와 주식 거래 내역을 co-grouping(공통 그룹화) 해야 한다.
+    * 두 이벤트 유형 중 하나가 없다면 튜플에 있는 컬렉션 중 하나는 비어 있게 된다.
+
+### 6.4.1 코그룹 프로세스 정의
+1. 토픽 2개 정의
+2. 레코드를 소비하는 프로세서 2개 추가
+3. 2개의 선행 프로세서를 집계하고 공통 그룹 역할을 하는 3번째 프로세서 추가.
+4. 두 이벤트 상태를 유지하는 집계 프로세서에 상태저장소 추가
+5. 결과를 기록하는 싱크 노드 추가
 
 
+#### 소스~싱크 노드 정의
+```java
+Topology topology = new Topology();
+Map<String, String> changeLogConfigs = new HashMap<>();
+changeLogConfigs.put("retention.ms", "120000");
+changeLogConfigs.put("cleanup.policy", "compact,delete");
+
+
+KeyValueBytesStoreSupplier storeSupplier = Stores.persistentKeyValueStore(TUPLE_STORE_NAME);
+StoreBuilder<KeyValueStore<String, Tuple<List<ClickEvent>, List<StockTransaction>>>> storeBuilder =
+        Stores.keyValueStoreBuilder(storeSupplier,
+                Serdes.String(),
+                eventPerformanceTuple).withLoggingEnabled(changeLogConfigs);
+
+topology.addSource("Txn-Source", stringDeserializer, stockTransactionDeserializer, "stock-transactions")
+        .addSource("Events-Source", stringDeserializer, clickEventDeserializer, "events")
+        .addProcessor("Txn-Processor", StockTransactionProcessor::new, "Txn-Source")  // Tuple<ClientEvent, StockTransaction> tuple = Tuple.of(null, value) 전달
+        .addProcessor("Events-Processor", ClickEventProcessor::new, "Events-Source")  // Tuple<ClientEvent, StockTransaction> tuple = Tuple.of(value, null) 전달
+        .addProcessor("CoGrouping-Processor", CogroupingProcessor::new, "Txn-Processor", "Events-Processor")  // 2개의 이벤트를 코그룹하는 프로세서. 코그룹을 수행하고 일정한 간격으로 출력 토픽에 전달.
+        .addStateStore(storeBuilder, "CoGrouping-Processor")
+        .addSink("Tuple-Sink", "cogrouped-results", stringSerializer, tupleSerializer, "CoGrouping-Processor");
+
+topology.addProcessor("Print", new KStreamPrinter("Co-Grouping"), "CoGrouping-Processor");
+```
+
+#### Cogrouping Processor
+
+```java
+public class CogroupingProcessor extends AbstractProcessor<String, Tuple<ClickEvent,StockTransaction>> {
+
+    private KeyValueStore<String, Tuple<List<ClickEvent>,List<StockTransaction>>> tupleStore;
+    public static final  String TUPLE_STORE_NAME = "tupleCoGroupStore";
+    
+    @Override
+    @SuppressWarnings("unchecked")
+    public void init(ProcessorContext context) {
+        super.init(context);
+        tupleStore = (KeyValueStore) context().getStateStore(TUPLE_STORE_NAME);  // 미리 구성해둔 상태 저장소.
+        CogroupingPunctuator punctuator = new CogroupingPunctuator(tupleStore, context());
+        context().schedule(15000L, STREAM_TIME, punctuator); // 15초마다 punctuator 호출하도록 예약, STREAM_TIME을 사용하므로 데이터의 타임스탬프가 호출 간격을 결정한다.
+    }
+
+    @Override
+    public void process(String key, Tuple<ClickEvent, StockTransaction> value) {
+
+        Tuple<List<ClickEvent>, List<StockTransaction>> cogroupedTuple = tupleStore.get(key);
+        if (cogroupedTuple == null) {
+             cogroupedTuple = Tuple.of(new ArrayList<>(), new ArrayList<>());
+        }
+
+        if(value._1 != null) {
+            cogroupedTuple._1.add(value._1);
+        }
+
+        if(value._2 != null) {
+            cogroupedTuple._2.add(value._2);
+        }
+
+        tupleStore.put(key, cogroupedTuple);  // 업데이트된 집계를 상태 저장소에 저장.
+    }
+}
+```
+
+#### 펑추에이터 처리
+ * 이터레이터에 있는 모든 레코드를 조회하고, 둘중 하나라도 값이 있으면 레코드를 다운 스트림으로 전달한다.
+ * 마지막엔, 현재 코그룹 결과를 제거하고, 상태 저장소에 이 튜플을 다시 저장하고 다음 레코드 도착을 기다린다.
+
+```java
+@Override
+public void punctuate(long timestamp) {
+    KeyValueIterator<String, Tuple<List<ClickEvent>, List<StockTransaction>>> iterator = tupleStore.all();
+
+    while (iterator.hasNext()) {
+        KeyValue<String, Tuple<List<ClickEvent>, List<StockTransaction>>> cogrouped = iterator.next();
+        
+        // if either list contains values forward results
+        if (cogrouped.value != null && (!cogrouped.value._1.isEmpty() || !cogrouped.value._2.isEmpty())) {
+            List<ClickEvent> clickEvents = new ArrayList<>(cogrouped.value._1);
+            List<StockTransaction> stockTransactions = new ArrayList<>(cogrouped.value._2);
+
+            context.forward(cogrouped.key, Tuple.of(clickEvents, stockTransactions));
+            
+            // empty out the current cogrouped results
+            cogrouped.value._1.clear();
+            cogrouped.value._2.clear();
+            tupleStore.put(cogrouped.key, cogrouped.value);
+        }
+    }
+    iterator.close();
+}
+```
+
+<img src="https://user-images.githubusercontent.com/48814463/200096286-8d9a5e5f-3192-4525-a714-05e8fe0141b5.png" width="50%" height="50%"/>
+
+
+## 6.5 프로세서 API와 카프카 스트림즈 API 통합하기
+* Processor 를 Transformer 인스턴스로 바꿀 수 있다.
+* 값은 null을 반환하고 ProcessorContext.forward는 선택사항이다.
