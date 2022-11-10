@@ -44,4 +44,23 @@ public class Context {
  * Context는 strategy 인터페이스에만 의존한다. 덕분에 strategy의 구현체의 변경이나 신규 생성에 contexst가 영향을 받지 않는다.
  * 이 패턴이 스프링에서 사용하는 의존성 주입 패턴이다.
 
+#### 전략을 주입받는 다른 방식도 있다.
+ * 전략을 익명 내부 클래스 방식으로 바로 작성해서 사용하는 방법도 있고,
+ * 전략을 execute 실행시점에 파라미터로 주입 받는 방법도 있다. <- 전략 변경이 좀더 유연한 방식
 
+```java
+public class Context {
+   
+   public void execute(Strategy strategy) {
+      // 공통 기능1
+      long startTime = System.currentTimeMillis();
+      
+      // 핵심 기능 위임.
+      strategy.call();
+      
+      // 공통 기능2
+      long endTime = System.currentTimeMillis();
+      long resultTime = endTime - startTime;
+   }
+}
+```
