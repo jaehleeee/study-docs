@@ -98,3 +98,6 @@ protected <T> T doExecute(URI url, @Nullable HttpMethod method, @Nullable Reques
   }
 }
 ```
+
+### 한계
+ * 지금까지 배운 템플릿 메서드 패턴, 전략 패턴, 템플릿 콜백 패턴 등은 한계가 명확하다. : 아무리 최적화하더라도 결국 로그 추적기를 적용하기 위해서 원본 코드를 수정해야한다는 점이다.
