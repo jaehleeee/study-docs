@@ -256,13 +256,15 @@ public void shouldYellFromMultipleTopics() throws Exception {
                                                       .map(String::toUpperCase)
                                                       .collect(Collectors.toList());
 
-    // 내장 카프카로 값 생산.
+    // 내장 카프카로 값 생산
+    // null 키를 사용해, 컬렉션의 각 항목에 대해 ProducerRecord를 만든다.
     IntegrationTestUtils.produceValuesSynchronously(YELL_A_TOPIC,
                                                     valuesToSendList,
                                                     producerConfig,
                                                     mockTime);
                                                     
     // 카프카에서 값 소비.
+    // 주어진 토픽에서 예상되는 레코드 수를 소비하도록 시도한다. 기본적으로 30초 동안 대기하고 지정한 레코드 수가 소비되지 않으면 AssertionError가 발생되어 테스트가 실패한다.
     int expectedNumberOfRecords = 5;
     List<String> actualValues = IntegrationTestUtils.waitUntilMinValuesRecordsReceived(consumerConfig,
                                                                                        OUT_TOPIC,
@@ -273,3 +275,37 @@ public void shouldYellFromMultipleTopics() throws Exception {
 
 }
 ```
+
+#### 동적으로 토픽 추가하기
+ * 테스트 중인 지점에서 실행 중인 카프카 브로커가 필요한 동적인 동작을 테스트하고 싶다.
+ * EmbeddedKafkaCluster 를 사용해 새 토픽을 만들고, 애플리케이션이 새 토픽에서 소비하고 예상대로 레코드를 처리하는지 테스트한다.
+
+
+```java
+
+// 새 토픽 생성 ("yell-B-topic")
+EMBEDDED_KAFKA.createTopic(YELL_B_TOPIC);
+
+// 전송할 새로운 값 목록 지정.
+valuesToSendList = Arrays.asList("yell", "at", "you", "too");
+
+// 값 생산
+IntegrationTestUtils.produceValuesSynchronously(YELL_B_TOPIC,
+                                                valuesToSendList,
+                                                producerConfig,
+                                                mockTime);
+
+expectedValuesList = valuesToSendList.stream().map(String::toUpperCase).collect(Collectors.toList());
+
+// 값 소비
+expectedNumberOfRecords = 4;
+actualValues = IntegrationTestUtils.waitUntilMinValuesRecordsReceived(consumerConfig,
+                                                                      OUT_TOPIC,
+                                                                      expectedNumberOfRecords);
+// 값 검증.
+assertThat(actualValues, equalTo(expectedValuesList));
+```
+
+#### 참고
+ * 내장 카프카 클러스터를 사용해 모든 테스트를 수행하는 것이 매력적으로 보일 수 있지만 그렇게 하지 않는 것이 가장 좋다.
+ * 단위테스트보다 실행하는데 시간이 오래 걸리는 것을 알 수 있다.
