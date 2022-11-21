@@ -49,6 +49,7 @@ void decorator2() {
 
 #### logTrace 기능을 Controller, Service, Repository 프록시에 추가하는 케이스에 대한 bean 조립 예시
  * xxxxxxInterfaceProxy 클래스에서 logTrace 부가 기능이 포함되어 있고, 핵심 기능이 있는 클래스(Controller, Service, Repository) 의존성을 가지고 있어서 핵심 기능도 실행시켜준다.
+ * 프록시를 실제 객체 대신 스프링 빈으로 등록한다. (프록시가 실제 객체를 참조하고 있기 때문에 실제 객체가 없어지는 것은 아니다. 프록시에 의해 참조될 뿐이다.)
 ```java
 @Configuration
 public class InterfaceProxyConfig {
