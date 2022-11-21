@@ -69,3 +69,12 @@ public class AppV1Config {
  * 프록시 패턴 : 접근 제어가 목적
  * 데코레이터 패턴 : 새로운 기능 추가가 목적
 
+### 프록시 패턴
+ * client -> cacheProxy -> realTarget 런타임 객체 의존관계 형성
+ * cacheProxy에 클라이언트가 원하는 타겟이 없을때만 realTarget을 호출한다. cacheProxy가 타겟을 들고 있으면 클라이언트에게 cacheProxy 단계에서 타겟을 응답해준다.
+ * 이 패턴의 핵심은, cacheProxy 도입하기 위해 클라이언트와 realTarget의 수정이 필요없다는 점이다.
+    * 클라이언트 입장에서는 프록시가 있는지 없는지 알 수 없고 상관쓰지도 않는다.
+
+
+### 데코레이터 패턴
+ * 
