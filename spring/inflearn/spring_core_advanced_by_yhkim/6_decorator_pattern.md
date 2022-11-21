@@ -44,5 +44,31 @@ void decorator2() {
 }
 ```
 
+### 핵심 로직이 들어있는 코드는 수정이 없지만, 클라이언트가 사용할때 일일이 프록시들을 조립해줘야 하는가..?
+-> 이는 configuration bean 설정에서 미리 조립해둘 수 있다.
 
+#### logTrace 기능을 Controller, Service, Repository 프록시에 추가하는 케이스에 대한 bean 조립 예시
+```java
+@Configuration
+public class InterfaceProxyConfig {
 
+    @Bean
+    public OrderControllerV1 orderController(LogTrace logTrace) {
+        OrderControllerV1Impl controllerImpl = new OrderControllerV1Impl(orderService(logTrace));
+        return new OrderControllerInterfaceProxy(controllerImpl, logTrace);
+    }
+
+    @Bean
+    public OrderServiceV1 orderService(LogTrace logTrace) {
+        OrderServiceV1Impl serviceImpl = new OrderServiceV1Impl(orderRepository(logTrace));
+        return new OrderServiceInterfaceProxy(serviceImpl, logTrace);
+    }
+
+    @Bean
+    public OrderRepositoryV1 orderRepository(LogTrace logTrace) {
+        OrderRepositoryV1Impl repositoryImpl = new OrderRepositoryV1Impl();
+        return new OrderRepositoryInterfaceProxy(repositoryImpl, logTrace);
+    }
+
+}
+```
