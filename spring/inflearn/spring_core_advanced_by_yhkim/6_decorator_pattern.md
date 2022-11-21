@@ -48,6 +48,7 @@ void decorator2() {
 -> 이는 configuration bean 설정에서 미리 조립해둘 수 있다.
 
 #### logTrace 기능을 Controller, Service, Repository 프록시에 추가하는 케이스에 대한 bean 조립 예시
+ * xxxxxxInterfaceProxy 클래스에서 logTrace 부가 기능이 포함되어 있고, 핵심 기능이 있는 클래스(Controller, Service, Repository) 의존성을 가지고 있어서 핵심 기능도 실행시켜준다.
 ```java
 @Configuration
 public class InterfaceProxyConfig {
