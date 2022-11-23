@@ -54,6 +54,7 @@ void reflection1() throws Exception {
 ```
 
 #### 리플렉션 사용2
+ * Method 라는 메타정보로 추상화. 이를 통해 공통 로직화 가능.
 ```java
 @Test
 void reflection2() throws Exception {
@@ -74,3 +75,6 @@ private void dynamicCall(Method method, Object target) throws Exception {
     log.info("result={}", result);
 }
 ```
+
+#### 리플렉션의 단점 (가급적 사용을 권장하진 않는다.)
+ * 런타임시점에 동작하기 때문에, 컴파일 시점에 오류를 찾을 수 없다.
