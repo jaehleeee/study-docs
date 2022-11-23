@@ -33,6 +33,7 @@ void reflection0() {
 
 #### 리플렉션 사용1
  * 리플렉션은 클래스나 메서드의 메타정보를 사용해서 동적으로 호출하는 메서드를 변경할 수 있다.
+ * 하지만 여전히 그냥 직접 함수를 호출하는 것과 편리함 측면에서 나아진 점은 없어보인다. 아래 예시에서 리플렉션을 좀 더 활용해보겠다.
 ```java
 @Test
 void reflection1() throws Exception {
@@ -49,5 +50,27 @@ void reflection1() throws Exception {
     Method methodCallB = classHello.getMethod("callB");
     Object result2 = methodCallB.invoke(target);
     log.info("result2={}", result2);
+}
+```
+
+#### 리플렉션 사용2
+```java
+@Test
+void reflection2() throws Exception {
+    //클래스 정보
+    Class classHello = Class.forName("hello.proxy.jdkdynamic.ReflectionTest$Hello");
+
+    Hello target = new Hello();
+    Method methodCallA = classHello.getMethod("callA");
+    dynamicCall(methodCallA, target);
+
+    Method methodCallB = classHello.getMethod("callB");
+    dynamicCall(methodCallB, target);
+}
+
+private void dynamicCall(Method method, Object target) throws Exception {
+    log.info("start");
+    Object result = method.invoke(target);
+    log.info("result={}", result);
 }
 ```
