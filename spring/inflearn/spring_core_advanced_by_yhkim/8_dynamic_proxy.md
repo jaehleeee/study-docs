@@ -1,3 +1,53 @@
 # 동적 할당
 
-## JDK 동적 프록시
+## 1. JDK 동적 프록시
+ * 이름 그대로, 개발자가 직접 프록시를 만들 필요없이, 런타임에 동적으로 프록시를 만들어준다.
+ * JDK 동적 프록시는 인터페이스가 필수다. 
+ * JDK 동적 프록시에 적용할 로직은 `InvocationHandler` 인터페이스를 구현해서 직접 작성해야 한다.
+
+#### 시간 측정하는 프록시 예제 코드
+```java
+@Slf4j
+public class TimeInvocationHandler implements InvocationHandler {
+
+    private final Object target;
+
+    public TimeInvocationHandler(Object target) {
+        this.target = target;
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        log.info("TimeProxy 실행");
+        long startTime = System.currentTimeMillis();
+
+        Object result = method.invoke(target, args);
+
+        long endTime = System.currentTimeMillis();
+        long resultTime = endTime - startTime;
+        log.info("TimeProxy 종료 resultTime={}", resultTime);
+        return result;
+    }
+}
+
+```
+ * `Object target` : 동적 프록시가 호출할 대상
+ * `method.invoke(target, args)` 리플렉션을 사용해서 `target`인스턴스의 메서드를 실행한다. 
+
+
+### 동적 프록시 실행 클라이언트 예제 코드
+```java
+@Test
+void dynamicA() {
+    AInterface target = new AImpl(); 
+    TimeInvocationHandler handler = new TimeInvocationHandler(target);
+
+    // 메서드 파라미터 : 어떤 클래스 로더, 어떤 인터페이스 기반 프록시인지, 프록시가 수행할 로직
+    AInterface proxy = (AInterface) Proxy.newProxyInstance(AInterface.class.getClassLoader(), new Class[]{AInterface.class}, handler);
+
+    proxy.call();
+    
+    log.info("targetClass={}", target.getClass());
+    log.info("proxyClass={}", proxy.getClass());
+}
+```
