@@ -53,7 +53,7 @@ void dynamicA() {
 ```
 
 
-### 2. 실제 로그 추적기에 적용해보기
+## 2. 실제 로그 추적기에 적용해보기
 
 #### InvocationHander 구현
 ```java
@@ -124,3 +124,11 @@ public class DynamicProxyBasicConfig {
 }
 
 ```
+
+
+## 3. CGLIB
+ * Code Generator Library
+ * 바이트코드를 조작해서 동적으로 클래스를 생성하는 기술을 제공하는 라이브러리
+ * JDK 동적프록시의 한계는 인터페이스가 필수리는 점이다. 이 한계점을 극복해주는 것이 CGLIB 기술이다.
+ * CGLIB는 인터페이스 없이 구체 클래스만 가지고 동적 프록시를 만들 수 있다.
+ * 단, 이후 배울 ProxyFactory가 더 좋기 때문에 실제로 CGLIB를 사용할 겨우는 거의 없다. 개념만 이해하자!
