@@ -185,3 +185,8 @@ public class CglibTest {
 }
 
 ```
+
+#### CGLIB 제약 포인트
+1. 부모 클래스의 생성자 체크 필수
+2. 클래스에 final 키워드 없어야 한다.
+3. final 키워드가 있는 메서드는 override 할 수 없다.
