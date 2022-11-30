@@ -129,8 +129,8 @@ public class DynamicProxyBasicConfig {
 ## 3. CGLIB
  * Code Generator Library
  * 바이트코드를 조작해서 동적으로 클래스를 생성하는 기술을 제공하는 라이브러리
- * JDK 동적프록시의 한계는 인터페이스가 필수리는 점이다. 이 한계점을 극복해주는 것이 CGLIB 기술이다.
- * CGLIB는 인터페이스 없이 구체 클래스만 가지고 동적 프록시를 만들 수 있다.
+ * JDK 동적프록시의 한계는 인터페이스가 필수라는 점이다. 이 한계점을 극복해주는 것이 CGLIB 기술이다.
+ * CGLIB는 인터페이스 구현 없이, 구체 클래스의 상속을 통해 프록시를 생성한다.
  * 단, 이후 배울 ProxyFactory가 이 기술을 편하게 사용하게 도와주기 때문에 , 실제로 CGLIB를 직접 사용할 경우는 거의 없다. 개념만 이해하자!
 
 #### CGLIB 코드
@@ -163,6 +163,7 @@ public class TimeMethodInterceptor implements MethodInterceptor {
 ```
 
 #### CGLIB 사용하는 클라이언트 코드 예제
+ * Enhancer : CGLIB는 이걸 이용해서 프록시를 생성한다.  
 ```java
 @Slf4j
 public class CglibTest {
