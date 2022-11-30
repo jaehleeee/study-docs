@@ -133,3 +133,54 @@ public class DynamicProxyBasicConfig {
  * CGLIB는 인터페이스 없이 구체 클래스만 가지고 동적 프록시를 만들 수 있다.
  * 단, 이후 배울 ProxyFactory가 이 기술을 편하게 사용하게 도와주기 때문에 , 실제로 CGLIB를 직접 사용할 경우는 거의 없다. 개념만 이해하자!
 
+#### CGLIB 코드
+ * JDK동적프록시에서 `InvocationHandler`를 제공했듯이, CGLIB에서는 `MethodInterceptor`를 제공함.
+ * obj: CGLIB가 적용된 객체, methodProxy: 메서드 호출에 사용
+```java
+@Slf4j
+public class TimeMethodInterceptor implements MethodInterceptor {
+
+    private final Object target;
+
+    public TimeMethodInterceptor(Object target) {
+        this.target = target;
+    }
+
+    @Override
+    public Object intercept(Object obj, Method method, Object[] args, MethodProxy methodProxy) throws Throwable {
+        log.info("TimeProxy 실행");
+        long startTime = System.currentTimeMillis();
+
+        Object result = methodProxy.invoke(target, args);
+
+        long endTime = System.currentTimeMillis();
+        long resultTime = endTime - startTime;
+        log.info("TimeProxy 종료 resultTime={}", resultTime);
+        return result;
+    }
+}
+
+```
+
+#### CGLIB 사용하는 클라이언트 코드 예제
+```java
+@Slf4j
+public class CglibTest {
+
+    @Test
+    void cglib() {
+        ConcreteService target = new ConcreteService();
+
+        Enhancer enhancer = new Enhancer();
+        enhancer.setSuperclass(ConcreteService.class);
+        enhancer.setCallback(new TimeMethodInterceptor(target));
+        ConcreteService proxy = (ConcreteService) enhancer.create();
+        log.info("targetClass={}", target.getClass());
+        log.info("proxyClass={}", proxy.getClass());
+
+        proxy.call();
+
+    }
+}
+
+```
