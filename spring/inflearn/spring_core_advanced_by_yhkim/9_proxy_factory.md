@@ -3,7 +3,7 @@
    * 이러한 불편을 해결해주는 공통 로직이 있으면 좋겠다.
  * 스프링은 이러한 부분을 통합해서 편리하게 해주는 `프록시 팩토리` 라는 기능을 제공한다.
    * 인터페이스가 있으면 JDK 동적 프록시를 생성해주고, 구체 클래스만 있다면 CGLIB를 사용하며 이러한 설정도 커스텀하게 변경 가능하다.
- * 그럼 InvocationHander와 MethodInterceptor는 어떻게 해결할까? `Advice` 라는 개념을 만들었다. 
+ * 그럼 InvocationHander와 MethodInterceptor는 어떻게 해결할까? 이 두 개념을 추상화하여 `Advice` 라는 개념을 만들었다. 
  * 개발자는 `Advice`에 공통 로직을 만들고, 결과적으로 InvocationHander와 MethodInterceptor는 `Advice`를 호출하도록 스프링이 세팅한다.
 
 ![image](https://user-images.githubusercontent.com/48814463/204924136-a0822caf-50d7-4928-afca-1dd4e4a5cd12.png)
@@ -14,4 +14,81 @@
 #### 특정 조건에 맞을 때 프록시 로직을 적용하는 기능도 공통으로 제공되었으면?
  * 스프링은 `Pointcut` 이라는 개념을 도입해서 이 문제를 일관성있게 해결한다.
 
-## ㅇㅇ
+### advice 정의 예제
+ * MethodInterceptor의 패키지를 주의하자. `import org.aopalliance.intercept.MethodInterceptor;` 라이브러리를 써야한다.
+ * MethodInvocation invocation에서 메서드명, 메서드 실행 모두 가능하다.
+
+```java
+@Slf4j
+public class TimeAdvice implements MethodInterceptor {
+    @Override
+    public Object invoke(MethodInvocation invocation) throws Throwable {
+        log.info("TimeProxy 실행");
+        long startTime = System.currentTimeMillis();
+
+        Object result = invocation.proceed();
+
+        long endTime = System.currentTimeMillis();
+        long resultTime = endTime - startTime;
+        log.info("TimeProxy 종료 resultTime={}", resultTime);
+        return result;
+    }
+}
+
+```
+
+### advice 사용 예제
+
+```java
+@Test
+@DisplayName("인터페이스가 있으면 JDK 동적 프록시 사용")
+void interfaceProxy() {
+    ServiceInterface target = new ServiceImpl();
+    ProxyFactory proxyFactory = new ProxyFactory(target);
+    proxyFactory.addAdvice(new TimeAdvice());
+    ServiceInterface proxy = (ServiceInterface) proxyFactory.getProxy();
+    log.info("targetClass={}", target.getClass());
+    log.info("proxyClass={}", proxy.getClass());
+
+    proxy.save();
+
+    assertThat(AopUtils.isAopProxy(proxy)).isTrue();
+    assertThat(AopUtils.isJdkDynamicProxy(proxy)).isTrue();
+    assertThat(AopUtils.isCglibProxy(proxy)).isFalse();
+}
+
+@Test
+@DisplayName("구체 클래스만 있으면 CGLIB 사용")
+void concreteProxy() {
+    ConcreteService target = new ConcreteService();
+    ProxyFactory proxyFactory = new ProxyFactory(target);
+    proxyFactory.addAdvice(new TimeAdvice());
+    ConcreteService proxy = (ConcreteService) proxyFactory.getProxy();
+    log.info("targetClass={}", target.getClass());
+    log.info("proxyClass={}", proxy.getClass());
+
+    proxy.call();
+
+    assertThat(AopUtils.isAopProxy(proxy)).isTrue();
+    assertThat(AopUtils.isJdkDynamicProxy(proxy)).isFalse();
+    assertThat(AopUtils.isCglibProxy(proxy)).isTrue();
+}
+
+@Test
+@DisplayName("ProxyTargetClass 옵션을 사용하면 인터페이스가 있어도 CGLIB를 사용하고, 클래스 기반 프록시 사용")
+void proxyTargetClass() {
+    ServiceInterface target = new ServiceImpl();
+    ProxyFactory proxyFactory = new ProxyFactory(target);
+    proxyFactory.setProxyTargetClass(true);
+    proxyFactory.addAdvice(new TimeAdvice());
+    ServiceInterface proxy = (ServiceInterface) proxyFactory.getProxy();
+    log.info("targetClass={}", target.getClass());
+    log.info("proxyClass={}", proxy.getClass());
+
+    proxy.save();
+
+    assertThat(AopUtils.isAopProxy(proxy)).isTrue();
+    assertThat(AopUtils.isJdkDynamicProxy(proxy)).isFalse();
+    assertThat(AopUtils.isCglibProxy(proxy)).isTrue();
+}
+```
