@@ -17,6 +17,7 @@
 ### advice 정의 예제
  * MethodInterceptor의 패키지를 주의하자. `import org.aopalliance.intercept.MethodInterceptor;` 라이브러리를 써야한다.
  * MethodInvocation invocation에서 메서드명, 메서드 실행 모두 가능하다.
+    * advice 실행시점에 핵심 로직이 들어있는 target 객체를 넣어준다. 
 
 ```java
 @Slf4j
@@ -34,10 +35,13 @@ public class TimeAdvice implements MethodInterceptor {
         return result;
     }
 }
-
 ```
 
 ### advice 사용 예제
+ * ProxyFactory는
+    * 인터페이스가 있으면 JDK 동적 프록시 사용
+    * 구체 클래스만 있으면 CGLIB 사용
+    * ProxyTargetClass 옵션을 사용하면 인터페이스가 있어도 CGLIB를 사용하고, 클래스 기반 프록시 사용
 
 ```java
 @Test
