@@ -4,3 +4,23 @@
  * advisor : 하나의 포인트컷과 하나의 어드바이스를 가지고 있는 것, 조언자는 어디(pointcut)에 어떤 조언(advice)을 해야할지 알고 있다.
 
 
+#### advisor 예제
+
+```java
+@Test
+@DisplayName("스프링이 제공하는 포인트컷")
+void advisorTest3() {
+    ServiceInterface target = new ServiceImpl();
+    ProxyFactory proxyFactory = new ProxyFactory(target);
+    NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
+    pointcut.setMappedNames("save");
+    DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(pointcut, new TimeAdvice());
+    proxyFactory.addAdvisor(advisor);
+    ServiceInterface proxy = (ServiceInterface) proxyFactory.getProxy();
+
+    proxy.save();
+    proxy.find();
+}
+```
+
+
