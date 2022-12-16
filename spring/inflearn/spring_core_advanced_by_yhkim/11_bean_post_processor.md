@@ -32,6 +32,7 @@ static class AtoBProcessor implements BeanPostProcessor {
 ```
 
 ## [참조] 빈 생명주기 콜백
+#### 
 > 스프링 컨테이너 생성 ->  빈 생성 -> 의존관계 주입  ->  초기화 콜백 -> 사용  -> 소멸전 콜백 -> 스프링 종료
 
 ### 콜백의 종류
