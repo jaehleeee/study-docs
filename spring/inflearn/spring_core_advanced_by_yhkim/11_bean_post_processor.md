@@ -35,7 +35,7 @@ static class AtoBProcessor implements BeanPostProcessor {
 }
 ```
 
-#### ProxyFactory 적용하는 프로세서 예제
+#### 특정 패키지의 하위 클래스에 ProxyFactory를 적용하는 프로세서 예제
 
 ```java
 public class PackageLogTracePostProcessor implements BeanPostProcessor {
