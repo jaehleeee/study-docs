@@ -28,7 +28,8 @@ public class Aspect1 {
 
 ### AOP 구현 예제 코드2 - pointcut과 advice 분리
  * pointcut을 분리하면, 여러 advice에 붙여 쓸 수 있어 활용도가 높다.
- * 
+ * pointcut 분리시 주의
+    * 코드 내용은 비우고, 리턴 타입은 void 여야 한다. 
 ```java
 @Slf4j
 @Aspect
