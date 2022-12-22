@@ -68,7 +68,7 @@ public class AspectV2 {
  * `@Around` 는 첫번째 파라미터에 ProceedingJointPoint 파라미터가 필수 (핵심기능을 호출해야 하기 때문)
  * 나머지 advice들은 첫번째 파라미터에 JointPoint 파라미터를 넣을 수 있는데, 필수는 아님.
  * around 로 무든 타이밍에 호출이 가능한데, 다른 advice는 왜 필요한가?
-    * around를 쓰고 실수로 핵심로직 호출을 빼먹는다면 매우 치명적인 장애로 이어진다... 이를 방지하기 위해서 필요.
+    * around를 쓰고 실수로 핵심로직 호출을 빼먹는다면 매우 치명적인 장애로 이어진다... 이를 방지하기 위해서 다른 advice 들이 필요.
 
 <img width="830" alt="image" src="https://user-images.githubusercontent.com/48814463/209092595-0cdb7045-7df4-4cc0-9a69-316e45e080dd.png">
 
