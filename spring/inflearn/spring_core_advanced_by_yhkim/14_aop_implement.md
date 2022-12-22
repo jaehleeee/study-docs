@@ -66,8 +66,5 @@ public class AspectV2 {
  * `@Around` 는 첫번째 파라미터에 ProceedingJointPoint 파라미터가 필수 (핵심기능을 호출해야 하기 때문)
  * 나머지 advice들은 첫번째 파라미터에 JointPoint 파라미터를 넣을 수 있는데, 필수는 아님.
 
-#### advice의 종류 예제 코드
-```java
+<img width="830" alt="image" src="https://user-images.githubusercontent.com/48814463/209092595-0cdb7045-7df4-4cc0-9a69-316e45e080dd.png">
 
-
-```
