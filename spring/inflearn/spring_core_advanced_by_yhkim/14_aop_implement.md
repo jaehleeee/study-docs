@@ -62,6 +62,10 @@ public class AspectV2 {
 4. `@After Throwing` : 메서드 예외를 던지는 경우 실행됨. 핵심로직 실행은 자동으로 실행된다.
 5. `@After` : 조인 포인트가 정상 또는 예외에 관계없이 실행. (finally) 핵심로직 실행은 자동으로 실행된다.
 
+#### 참고
+ * `@Around` 는 첫번째 파라미터에 ProceedingJointPoint 파라미터가 필수 (핵심기능을 호출해야 하기 때문)
+ * 나머지 advice들은 첫번째 파라미터에 JointPoint 파라미터를 넣을 수 있는데, 필수는 아님.
+
 #### advice의 종류 예제 코드
 ```java
 
