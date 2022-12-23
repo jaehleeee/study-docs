@@ -12,5 +12,8 @@
  * `*` 같은 패턴을 지정할 수 있다.
  * 부모 타입을 설정해도 자식 타입은 매칭된다. 단, 부모 타입에 있는 메서드 (override)만 매칭된다.
 
+![image](https://user-images.githubusercontent.com/48814463/209296520-3f55c7fd-50ae-4ff8-930c-8e2b204d978b.png)
+
+
 #### 가장 많은 생략 예시
 `execution(* *(..))`
