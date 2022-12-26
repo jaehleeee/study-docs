@@ -27,4 +27,4 @@
 2. 정적 팩터리 메서드는 프로그래머가 찾기 어렵다.
    * API 문서를 잘 써넣고 메서드 이름도 널리 알려진 규약을 따라 지어줘야한다.
    * 예시
-   *  from, of, valueOf, getInstance, create, getType, newType .. 
+      * from, of, valueOf, getInstance, create, getType, newType .. 
