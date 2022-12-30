@@ -8,5 +8,32 @@
  * AOP를 적용하면, 스프링은 target 객체 대신 프록시를 스프링 빈으로 등록한다.
  * 따라서 target 객체를 직접 호출하게 되는 케이스는 거의 발생하지 않는다.
  * 그러나, target 객체의 내부 메서드 호출이 발생하게 되면 프록시를 거치지 않고 target 객체를 직접 호출하게 되면서 프록시가 적용되지 않는 문제가 발생한다.
+    * 자바 언어에서는 메서드 앞에 별도의 참조가 없으면 `this` 라는 뜻으로 자기 자신의 인스턴스를 가리킨다.
+ * 실제 코드에 AOP를 적용하는 방식으로 사용하면 이러한 문제가 발생하진 않는다. 하지만 설정이 복잡하고 jvm 옵션을 줘야하는 부담이 있다.  
 
 
+### 첫번째 대안 - 자기 자신 주입
+ * 내부 메서드를 호출할때도 자기 자신의 의존성을 주입받아서, 자기 자신의 인스턴스를 통해 내부 메서드를 호출한다.
+
+```java
+@Slf4j
+@Component
+public class CallServiceV1 {
+
+    private CallServiceV1 callServiceV1;
+
+    @Autowired
+    public void setCallServiceV1(CallServiceV1 callServiceV1) {
+        this.callServiceV1 = callServiceV1;
+    }
+
+    public void external() {
+        log.info("call external");
+        callServiceV1.internal(); //외부 메서드 호출
+    }
+
+    public void internal() {
+        log.info("call internal");
+    }
+}
+```
