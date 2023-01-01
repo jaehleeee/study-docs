@@ -37,3 +37,33 @@ public class CallServiceV1 {
     }
 }
 ```
+
+
+### 두번째 대안 - 지연 조회
+ * ApplicationContext의 getBean으로 스프링 빈을 꺼낸다..? 좋은 방법이지만 ApplicationContext는 너무 방대하다. 우리가 필요한 기능은 getBean 하나뿐인데
+    * 따라서 대신 ObjectProvider를 사용한다.
+
+```java
+@Slf4j
+@Component
+public class CallServiceV2 {
+
+    private final ObjectProvider<CallServiceV2> callServiceProvider;
+
+    public CallServiceV2(ObjectProvider<CallServiceV2> callServiceProvider) {
+        this.callServiceProvider = callServiceProvider;
+    }
+
+    public void external() {
+        log.info("call external");
+        CallServiceV2 callServiceV2 = callServiceProvider.getObject();
+        callServiceV2.internal(); //외부 메서드 호출
+    }
+
+    public void internal() {
+        log.info("call internal");
+    }
+}
+```
+
+
