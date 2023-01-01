@@ -42,7 +42,7 @@ public class CallServiceV1 {
 ### 두번째 대안 - 지연 조회
  * ApplicationContext의 getBean으로 스프링 빈을 꺼낸다..? 좋은 방법이지만 ApplicationContext는 너무 방대하다. 우리가 필요한 기능은 getBean 하나뿐인데
     * 따라서 대신 ObjectProvider를 사용한다.
-
+ * ObjectProvider는 객체를 스프링 컨테이너에서 조회하는 것을 스프링 빈 생성 시점이 아니라 객체 사용 시점으로 지연할 수 있다.
 ```java
 @Slf4j
 @Component
@@ -65,5 +65,16 @@ public class CallServiceV2 {
     }
 }
 ```
+
+### 세번째 대안 - 구조 변경 (권장)
+ * 가장 좋은 대안은 위의 2가지 대안처럼 뭔가를 추가하는 것 보다 내부 호출이 발생하지 않도록 구조를 변경하는 것이다.
+ * internalService를 따로 만들어두고, 내부호출하지 않게 변경하는 것이다. (흠... 근데 이러면 내부 호출이 아니자나...;; 애매한데)
+ * 결국 내부 호출 자체가 AOP의 한계점으로 인정해야 하는 부분인 것 같다.
+
+
+## 2. 프록시 기술과 한계
+ * 스ㅇ
+
+
 
 
