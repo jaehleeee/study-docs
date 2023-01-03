@@ -16,7 +16,7 @@
 
 ### advice 정의 예제
  * MethodInterceptor의 패키지를 주의하자. `import org.aopalliance.intercept.MethodInterceptor;` 라이브러리를 써야한다.
- * MethodInvocation invocation에서 메서드명, 메서드 실행 모두 가능하다.
+ * 파라미터로 들어온 MethodInvocation invocation에서 메서드명 확인, 메서드 실행 모두 가능하다.
     * advice 실행시점에 핵심 로직이 들어있는 target 객체를 넣어준다. 
 
 ```java
