@@ -42,7 +42,7 @@ public class TimeAdvice implements MethodInterceptor {
     * 인터페이스가 있으면 JDK 동적 프록시 사용
     * 구체 클래스만 있으면 CGLIB 사용
     * ProxyTargetClass 옵션을 사용하면 인터페이스가 있어도 CGLIB를 사용하고, 클래스 기반 프록시 사용
-       * 참고로 스프링부트는 AOP를 적용할 때 기본적으로 ProxyTargetClass = true를 설정해서 
+       * 참고로 스프링부트는 AOP를 적용할 때 기본적으로 ProxyTargetClass = true를 설정되어서 CGLIB 사용이 디폴트이다.
 
 ```java
 @Test
