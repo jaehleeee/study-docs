@@ -78,7 +78,7 @@ public class PackageLogTracePostProcessor implements BeanPostProcessor {
 > bean 사용 finish -> 소멸전 콜백 -> 스프링 종료
 
 ### 콜백의 종류
-1. 인터페이스(InitializingBean, DisposableBean)를 구현하여 사용. 아래 2가지 메서드 지원.
+1. 콜백을 추가하고자 하는 클래스에 인터페이스(InitializingBean, DisposableBean)를 구현하여 사용. 아래 2가지 메서드를 override 하여 적용.
     * afterPropertiesSet(): 의존관계 주입이 끝난 후 호출
     * destroy(): 빈이 죽기 직전에 호출
 2. bean 설정 정보(xml 에서 init-method, destroy-method 인듯) 초기화 메서드, 종료 메서드 지정
