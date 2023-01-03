@@ -2,7 +2,7 @@
  * 스프링의 빈 등록 절차
     1. 스프링이 빈이 될 클래스를 생성
     2. 스프링 컨테이너에 등록하기 전, 후처리기 프로세스 진행
-    3.  초기화 전에 할지, 후에 할지는 메서드로 선택 가능
+    3. 초기화 전에 할지, 후에 할지는 메서드로 선택 가능
     4. 해당 클래스를 스프링 컨테이너에 등록
  * 그리고 이후엔 컨테이너에 등록한 스프링 빈을 조회해서 사용한다.
  * 스프링 빈 저장소에 등록할 목적으로 생성한 객체를 빈 저장소에 등록하기 직전에 조작하고 싶다면 빈 후처리기를 사용할 수 있다.
@@ -78,10 +78,10 @@ public class PackageLogTracePostProcessor implements BeanPostProcessor {
 > bean 사용 finish -> 소멸전 콜백 -> 스프링 종료
 
 ### 콜백의 종류
-1. 인터페이스(InitializingBean, DisposableBean) 사용. 아래 2가지 메서드 지원.
+1. 인터페이스(InitializingBean, DisposableBean)를 구현하여 사용. 아래 2가지 메서드 지원.
     * afterPropertiesSet(): 의존관계 주입이 끝난 후 호출
     * destroy(): 빈이 죽기 직전에 호출
-2. 설정 정보 초기화 메서드, 종료 메서드 지정
+2. bean 설정 정보(xml 에서 init-method, destroy-method 인듯) 초기화 메서드, 종료 메서드 지정
 3. (추천) @PostConstruct, @PreDestroy 사용 - 초기화 혹은 소멸전 메서드 위에 붙이기만 하면 되기 때문에 가장 편하게 사용 가능
 
 ### @PostConstruct, @PreDestroy 란?
