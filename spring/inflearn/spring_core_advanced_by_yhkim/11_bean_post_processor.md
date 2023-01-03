@@ -81,7 +81,8 @@ public class PackageLogTracePostProcessor implements BeanPostProcessor {
 1. 콜백을 추가하고자 하는 클래스에 인터페이스(InitializingBean, DisposableBean)를 구현하여 사용. 아래 2가지 메서드를 override 하여 적용.
     * afterPropertiesSet(): 의존관계 주입이 끝난 후 호출
     * destroy(): 빈이 죽기 직전에 호출
-2. bean 설정 정보(xml 에서 init-method, destroy-method 인듯) 초기화 메서드, 종료 메서드 지정
+2. bean 설정 정보(xml 에서 init-method, destroy-met 로 사용할 메서드 이름을 지정해야함) 초기화 메서드, 종료 메서드 지정
+    *  init-method, destroy-method로 지정한 메서드를 만들어야함.
 3. (추천) @PostConstruct, @PreDestroy 사용 - 초기화 혹은 소멸전 메서드 위에 붙이기만 하면 되기 때문에 가장 편하게 사용 가능
 
 ### @PostConstruct, @PreDestroy 란?
