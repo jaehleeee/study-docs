@@ -32,7 +32,7 @@ void advisorTest3() {
  * AnnotationMatchingPointcut
  * AspecdtJExpressionPointcut : aspectJ 표현식으로 매칭 (가장 많이 사용됨.)
 
-#### save 라는 이름의 메서드에만 적용하는 pointcut 만들어보기
+#### 예제 : save 라는 이름의 메서드에만 적용하는 pointcut 만들어보기
  * (보통 스프링 제공해주는 pointcut을 사용하게 되기 때문에 직접 만들 일은 거의 없을 것임.)
  * 포인트컷은 클래스를 확인하는 ClassFilter와 메서드를 확인하는 MethodMatcher 2가지 요소로 이뤄져있다.
 
