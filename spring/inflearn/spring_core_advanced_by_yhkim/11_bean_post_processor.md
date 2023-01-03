@@ -74,7 +74,8 @@ public class PackageLogTracePostProcessor implements BeanPostProcessor {
 
 ## [참조] 빈 생명주기 콜백
 #### 
-> 스프링 컨테이너 생성 -> 빈 생성 -> 의존관계 주입 -> 초기화 콜백 -> 사용 -> 소멸전 콜백 -> 스프링 종료
+> 스프링 컨테이너 생성 -> 빈 생성 -> 의존관계 주입 -> 초기화 콜백 -> bean 사용 start
+> bean 사용 finish -> 소멸전 콜백 -> 스프링 종료
 
 ### 콜백의 종류
 1. 인터페이스(InitializingBean, DisposableBean) 사용. 아래 2가지 메서드 지원.
