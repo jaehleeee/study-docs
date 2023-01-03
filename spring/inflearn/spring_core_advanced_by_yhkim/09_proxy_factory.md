@@ -90,7 +90,7 @@ void proxyTargetClass() {
     log.info("targetClass={}", target.getClass());
     log.info("proxyClass={}", proxy.getClass());
 
-    proxy.save();
+    proxy.call();
 
     assertThat(AopUtils.isAopProxy(proxy)).isTrue();
     assertThat(AopUtils.isJdkDynamicProxy(proxy)).isFalse();
