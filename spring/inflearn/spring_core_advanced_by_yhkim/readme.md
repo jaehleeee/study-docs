@@ -52,3 +52,22 @@
  * 구체 클래스의 상속을 통해 프록시 생성
  * InvocationHandler 처럼 MethodInterceptor 를 통해 프록시 클래스 생성
  * Enhancer.create() 를 통해 프록시 인스턴스 생성
+
+
+## 9. Proxy Factory
+ * 인터페이스가 있으면 JDK 동적 프록시, 없으면 CGLIB 이렇게 매번 각 케이스를 구분해서 프록시를 생성하기엔 너무 번거롭다.
+ * 이를 통합하여 프록시를 생성해주는 것이, `Proxy Factory` 이다.
+ * 프록시 팩토리에 핵심 기능인 target을 설정하고, 부가기능인 advice를 설정하고, 언제 이 프록시를 적용할지 pointCut 설정을 통해 결정한다.
+ * 하지만, 모든 스프링 빈 마다 프록시를 일일이 적용하는 것도 여전히 번거롭다. 이는 빈 후처리기로 적용되는 자동 프록시 생성기를 통해 해결 가능하다.
+
+## 10. AnnotationAwareAspectJAutoProxyCreator
+ * implementation 'org.springframework.boot:spring-boot-starter-aop' 를 추가하면, AnnotationAwareAspectJAutoProxyCreator가 활성화된다.
+ * AnnotationAwareAspectJAutoProxyCreator 는 스프링 빈으로 등록된 advisor를 찾아서 필요한 곳에 프록시를 자동으로 생성해준다.
+ * 따라서, 포인트컷과 어드바이스로 구성된 어드바이저를 만들어서 스프링 빈으로 등록하면, 자동 프록시 생성기가 모두 자동으로 적용을 도와준다.
+    * 자동 프록시 생성기가 스프링 빈으로 등록된 어드바이저들을 찾고 해당되는 스프링 빈들에 자동으로 프록시를 적용해준다.
+
+
+## 11. @Aspect
+ * Aspect 애노테이션으로 매우 편리하게 포인트컷과 어드바이스로 구성되어 있는 어드바이저 생성 기능을 지원한다.
+ * 이러한 기능을 사용할 수 있게 해주는 것도 자동 프록시 생성기인 (AnnotationAwareAspectJAutoProxyCreator) 의 역할 중 하나다.
+    * 즉, `@Aspect` 가 붙은 크래스를 찾아서 Advisor로 만들어주는 역할을 한다. 
