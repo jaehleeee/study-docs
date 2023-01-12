@@ -24,8 +24,19 @@
  * 추상 클래스에선 하위 클래스를 위해 추상 빌더를 사용한다. (`abstract static class Builder<T extends Builders<T>>`)
 
 ## 완벽 공략
-### 1. 자바빈즈
- * ㅇㅇ
+### 1. JavaBean
+ * 자바로 작성한 자바 클래스 중에 자바 빈즈 컨벤션(Java Beans Convention) 에 맞게 작성된 클래스
+#### JavaBean Convention
+ * 자바빈은 기본(default)패키지 이외의 특정 패키지에 속해 있어야 한다.
+ * 클래스는 인자(Argument)가 없는 기본 생성자(Default constructor)를 갖는다.
+ * 클래스의 멤버 변수는 프로퍼티(Properties)라고 하며 private 접근 제한자를 가져야 한다.
+ * 클래스의 프로퍼티들은 Getter/Setter를 통해 접근할 수 있어야 한다.
+ * Getter/setter의 접근 제한자는 public이어야 한다.
+ * Getter의 이름은 get{프로퍼티 이름} 이며, Setter의 이름은 set{프로퍼티 이름}이다
+ * Read Only인 경우 Setter는 없을 수 있다.
+ * Getter의 경우 파라미터가 존재하지 않아야 하며, setter의 경우 하나 이상의 파라미터가 존재한다.
+ * 프로퍼티의 타입이 Boolean인 경우 is로 시작할 수 있다.
+  
 
 
 ### 2. 객체 프리징 (자바스크립트에서 나온 기능)
