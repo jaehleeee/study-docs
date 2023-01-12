@@ -23,12 +23,17 @@
 ### 계층형 빌더 (책에서 Pizza 추상 클래스 예시)
  * 추상 클래스에선 하위 클래스를 위해 추상 빌더를 사용한다. (`abstract static class Builder<T extends Builders<T>>`)
 
+
+
 ## 완벽 공략
 ### 1. JavaBean
  * 자바로 작성한 자바 클래스 중에 자바 빈즈 컨벤션(Java Beans Convention) 에 맞게 작성된 클래스
+ * JSP 기반 웹 어플리케이션에서 정보를 표현하기 위한 객체로 사용된다.
+ * spring에서는 pojo 라고 불리기도 한다.
 #### JavaBean Convention
  * 자바빈은 기본(default)패키지 이외의 특정 패키지에 속해 있어야 한다.
- * 클래스는 인자(Argument)가 없는 기본 생성자(Default constructor)를 갖는다.
+ * 클래스는 인자(Argument)가 없는 기본 생성자(Default constructor)를 갖는다. <- 왜 기본 생성자? 객체를 만들기 가장 편하기 때문.
+ * Serializable 인터페이스를 구현해야 한다.
  * 클래스의 멤버 변수는 프로퍼티(Properties)라고 하며 private 접근 제한자를 가져야 한다.
  * 클래스의 프로퍼티들은 Getter/Setter를 통해 접근할 수 있어야 한다.
  * Getter/setter의 접근 제한자는 public이어야 한다.
