@@ -15,9 +15,11 @@
  * 장점2 : 간결함
  * 단점1 : 리플렉션 API를 이용해 private 생성자를 호출 가능하므로 싱글턴이 깨질 수 있다.
     * 이를 방어하려면 2번째 객체 생성시 예외를 던지게 하면 된다. - 객체내 객체 생성여부를 체크하는 boolean 필드를 하나두고 이를 통해 확인 가능.
+    * (간결함이라는 장점은 깨지는..)
  * 단점2 : 클래스를 직렬화/역직렬화하는 경우가 있다. 이때 생성자가 호출된다. 그래서 싱글턴이 깨질 수 있다.
     * 이를 방어하려면, readResolve() 라는 메서드르 클래스 내에 선언해줘야 한다. (override는 아닌데, 직렬화 과정에서 사용되는 하는 ;; 이상한 메서드인듯)
     * `private Object readResolve() {return INSTANCE}`
+    * (간결함이라는 장점은 깨지는..)
 ```java
 public class Elvis {
   public static final Elvis INSTANCE = new Elvis();
