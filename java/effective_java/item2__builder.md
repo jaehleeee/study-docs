@@ -54,5 +54,6 @@
 ### 3. IllegalArgumentException
  * 잘못된 인자를 넘겨 받았을 때 사용할 수 있는 런타임 예외 (unchecked exception)
  * 예외가 발생했을때 클라이언트가 복구 가능한 상황이라면 checked exception, 복구가 힘들다면 unchecked exception
- * 
+ * [RuntimeException Class JAVA Docs](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/RuntimeException.html)
+ * [Unchecked Exceptions — The Controversy JAVA Docs](https://docs.oracle.com/javase/tutorial/essential/exceptions/runtime.html)
 
