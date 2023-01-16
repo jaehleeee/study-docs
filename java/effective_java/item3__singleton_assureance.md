@@ -27,12 +27,30 @@ public class Elvis {
 }
 ```
 
-#### 두번째 방법 : private 생성자 & private static final 멤버 & public static 정적 팩터리 메서드로 제공
- * 생성자를 private으로 감춘 후, 정적 팩터리 메서드를 public static 멤버로 제공.
+#### 두번째 방법 : private 생성자 & private static final 멤버 & public static 팩터리 메서드로 제공
+ * 생성자를 private으로 감춘 후, 정적 팩터리 메서드를 통해 private static 멤버를 제공.
  * 장점1 : API를 바꾸지 않고도 싱글턴이 아니게 변경할 수 있다는 점
- * 장점2 : 원한다면 정적 팩터리를 제네릭 싱글턴 팩터리로 만들 수 있다는 점
+    * static 팩터리 메서드에 private 멤버가 아닌, 신규 객체를 생성함으로써 클라이언트 코드 변경없이 싱글턴에서 싱글턴에서 아니게 변경 가능.
+ * 장점2 : 정적 팩터리를 제네릭 싱글턴 팩터리로 만들 수 있다는 점
+    * 제네릭한 타입으로 싱글턴 팩터리를 만들 수 있다.
+
+```java
+public class Meta<T> {
+  private static final Meta<Object> INSTANCE = new Elvis();
+  pirvate Meta() {};
+  public static <T> Meta<T> getInstance() {return (Meta<T>) INSTANCE;}
+}
+
+---
+
+// `Meta<String> meta1 = Meta.getInstance();`
+// `Meta<Integer> meta2 = Meta.getInstance();`
+// meta1과 meta2는 같은 해시코드를 가지지만, == 비교는 타입이 달라서 불가능하다.
+
+```
+
  * 장점3 : 정적 팩터리의 메서드 참조를 공급자로 사용할 수 있다
- * 마찬가지로 리플렉션 API를 이용해 private 생성자를 호출하는 예외는 존재 (이를 방어하려면 2번째 객체 생성시 예외를 던지게 하면 된다.)
+ * 단점은 첫번째 방법과 동일하며 해결책도 동일하다.
 
 ```java
 public class Elvis {
