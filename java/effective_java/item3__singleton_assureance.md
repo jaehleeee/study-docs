@@ -38,7 +38,10 @@ public class Elvis {
 public class Meta<T> {
   private static final Meta<Object> INSTANCE = new Elvis();
   pirvate Meta() {};
-  public static <T> Meta<T> getInstance() {return (Meta<T>) INSTANCE;}
+  @SuppressWarnings("unchecked")
+  public static <T> Meta<T> getInstance() {return (Meta<T>) INSTANCE;} 
+  // 클래스 옆에 <T>가 있는데 static 옆에 <T>는 왜 들어가는가? scope이 다르기 때문. 여기선 클래스에서 선언한 제네릭과 다른 문자를 사용해도 된다.
+  public void say (T t) {log.info(t);} // 하지만 메서드에서는 클래스에 있는 제네릭 T를 그대로 사용해야 한다.
 }
 
 ---
@@ -49,8 +52,8 @@ public class Meta<T> {
 
 ```
 
- * 장점3 : 정적 팩터리의 메서드 참조를 공급자로 사용할 수 있다
- * 단점은 첫번째 방법과 동일하며 해결책도 동일하다.
+ * 장점3 : 정적 팩터리의 메서드 참조를 공급자(Supplier)로 사용할 수 있다
+ * 단점은 위 첫번째 방법과 동일하며 해결책도 동일하다.
 
 ```java
 public class Elvis {
@@ -61,7 +64,9 @@ public class Elvis {
 ```
 
 ### 세번째 방법 : 원소가 하나인 Enum 생성
+ * 싱글턴 제공 방법 중 가장 권장하는 방법
  * public 필드 방식과 비슷하지만 더 간격하고, 추가 노력없이 직렬화 가능하고, 리플렉션 공격을 막아준다.
+    * 리플렉션으로 생성자를 가져오려고 하면, 생성자가 없다는 예외(NoSuchMethodException)가 발생한다. 실제론 있음. 자바 내부적으로 접근을 막아놓았다.
  * 단, 만들려는 클래스가 다른 클래스를 상속해야한다면 이 방법을 사용할 수 없다.
 
 
