@@ -118,10 +118,10 @@ people = dataList.stream().map(Person::new).collect(Collectors.toList());
  * 함수형 인터페이스는 대표적으로 아래 4가지가 있다.
 
 #### Function, Consumer, Supplier, Predicate
- * Function : 2개의 타입을 받는다. 첫번째 타입 -> 두번째 타입 리턴. (ex: Function<Integer, String> f = Objects::toString)
- * Supplier : 받는 타입은 없고, 나오는 타입만 있다. (ex: Supplier<Person> s = Person::new)
- * Consumer : 받는 타입만 있고, 나오는 타입은 없다. (ex: Consumer<Integer> c = System.out::println)
- * Predicate : 1개의 타입을 받아서 Boolean을 리턴한다. 일종의 Function 이다. (ex: Predicate<Integer> p = Objects::isNull)
+ * Function : 2개의 타입을 받는다. 첫번째 타입 -> 두번째 타입 리턴. (ex: `Function<Integer, String> f = Objects::toString`)
+ * Supplier : 받는 타입은 없고, 나오는 타입만 있다. (ex: `Supplier<Person> s = Person::new`)
+ * Consumer : 받는 타입만 있고, 나오는 타입은 없다. (ex: `Consumer<String> c = System.out::println`)
+ * Predicate : 1개의 타입을 받아서 Boolean을 리턴한다. 일종의 Function 이다. (ex: `Predicate<Integer> p = Objects::isNull`)
 
 
 ### 객체 직렬화
