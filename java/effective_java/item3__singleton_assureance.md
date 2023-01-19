@@ -73,6 +73,39 @@ public class Elvis {
 
 ## 완벽 공략
 ### 메서드 참조
+#### 이해를 위한 코드 예제
+```java
+List<Person> people = Lists.newArrayList();
+people.add(new Person("1992.04.04"));
+people.add(new Person("1990.07.20"));
+people.add(new Person("1999.01.11"));
+
+// 1. 익명 내부 클래스
+people.sort(new Comparator<Person>() {
+   @Override
+   public int compare(Person a, Person b) {
+      return a.birth.compareTo(b.birth);
+	}
+})
+
+// 2. lambda
+people.sort((p1, p2) -> p1.birth.compare(p2.birth));
+
+// 3. static 메서드 참조 (Person 클래스에 static 메서드가 있을때)
+// compareBirth : int 리턴하고, 파라미터가 2개있는 함수
+people.sort(Person::compareBirth);
+
+// 4. 인스턴스 메서드 참조(Person 클래스에 static 아닌 메서드가 있을때)
+Person p = new Person("1992.04.04");
+people.sort(p::compareBirth);
+
+// 5. 임의 객체 메서드 참조 (Person 클래스에 static 아닌 메서드가 있을때, 4번 다른 방식)
+// compareBirth : int 리턴하고, 파라미터가 1개있는 함수(static에서의 첫번째 인자는 자기 자신으로 간주)
+people.sort(Person::compareBirth);
+
+// 6. 생성자 참조 (Function<LocalDate, Person> aNew = Person::new;)
+people = dataList.stream().map(Person::new).collect(Collectors.toList());
+```
 
 
 ### 함수형 인터페이스
