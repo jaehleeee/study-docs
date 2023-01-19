@@ -73,6 +73,7 @@ public class Elvis {
 
 ## 완벽 공략
 ### 메서드 참조
+ * https://docs.oracle.com/javase/tutorial/java/javaOO/methodreferences.html
 #### 이해를 위한 코드 예제
 ```java
 List<Person> people = Lists.newArrayList();
@@ -95,7 +96,7 @@ people.sort((p1, p2) -> p1.birth.compare(p2.birth));
 // compareBirth : int 리턴하고, 파라미터가 2개있는 함수
 people.sort(Person::compareBirth);
 
-// 4. 인스턴스 메서드 참조(Person 클래스에 static 아닌 메서드가 있을때)
+// 4. 인스턴스 메서드 참조 (Person 클래스에 static 아닌 메서드가 있을때)
 Person p = new Person("1992.04.04");
 people.sort(p::compareBirth);
 
@@ -109,6 +110,19 @@ people = dataList.stream().map(Person::new).collect(Collectors.toList());
 
 
 ### 함수형 인터페이스
+ * https://blogs.oracle.com/javamagazine/post/understanding-java-method-invocation-with-invokedynamic
+ * https://docs.oracle.com/javase/8/docs/api/java/lang/invoke/LambdaMetafactory.html
+ * 함수형 인터페이스는 람다 표현식과 메소드 참조에 대한 “타겟 타입”을 제공한다.
+ * 타겟 타입은 변수 할당, 메소드 호출, 타입 변환에 활용할 수 있다.
+ * 함수형 인터페이스는 @FunctionalInterface 어노테이션으로 정의 가능하며, java.util.function 라이브러리에 포함되어 있다.
+ * 함수형 인터페이스는 대표적으로 아래 4가지가 있다.
+
+#### Function, Consumer, Supplier, Predicate
+ * Function : 2개의 타입을 받는다. 첫번째 타입 -> 두번째 타입 리턴. (ex: Function<Integer, String> f = Objects::toString)
+ * Supplier : 받는 타입은 없고, 나오는 타입만 있다. (ex: Supplier<Person> s = Person::new)
+ * Consumer : 받는 타입만 있고, 나오는 타입은 없다. (ex: Consumer<Integer> c = System.out::println)
+ * Predicate : 1개의 타입을 받아서 Boolean을 리턴한다. 일종의 Function 이다. (ex: Predicate<Integer> p = Objects::isNull)
 
 
 ### 객체 직렬화
+ * https://docs.oracle.com/javase/8/docs/platform/serialization/spec/serialTOC.html
