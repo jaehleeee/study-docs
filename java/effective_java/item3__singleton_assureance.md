@@ -117,6 +117,7 @@ people = dataList.stream().map(Person::new).collect(Collectors.toList());
  * 함수형 인터페이스는 @FunctionalInterface 어노테이션으로 정의 가능하며, java.util.function 라이브러리에 포함되어 있다.
  * 함수형 인터페이스는 대표적으로 아래 4가지가 있다.
 
+
 #### Function, Consumer, Supplier, Predicate
  * Function : 2개의 타입을 받는다. 첫번째 타입 -> 두번째 타입 리턴. (ex: `Function<Integer, String> f = Objects::toString`)
  * Supplier : 받는 타입은 없고, 나오는 타입만 있다. (ex: `Supplier<Person> s = Person::new`)
@@ -126,3 +127,14 @@ people = dataList.stream().map(Person::new).collect(Collectors.toList());
 
 ### 객체 직렬화
  * https://docs.oracle.com/javase/8/docs/platform/serialization/spec/serialTOC.html
+ * 객체를 byte 스트림으로 변환하는 기술 (byte -> object는 역직렬화)
+ * Serializable 인터페이스 구현
+    * 객체 내에서 직렬화하지 않을 필드는 `transient` 를 사용해서 선언 가능
+    * static한 필드는 직렬화되지 않음
+ * serialVersionUID는 언제 사용하는가?
+    * serialVersionUID는 Serializable 인터페이스 구현하면 JVM이 런타임 중에 자동으로 세팅한다
+    * 클래스가 변경되면 serialVersionUID가 바뀐다
+    * serialVersionUID 이름처럼, 이 값이 바뀐 클래스는 역직렬화가 안된다.
+       * 역직렬화하고 싶다면 미리 선언해서 고정시켜두면 된다. 
+
+
