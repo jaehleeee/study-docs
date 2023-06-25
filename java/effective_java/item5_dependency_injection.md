@@ -3,9 +3,30 @@
 ## 핵심 정리
  * 사용하는 자원에 따라 동작이 달라지는 클래스는 정적 유틸리티 클래스나 싱글턴 방식이 적합하지 않다.
     * 자원에 따라 새롭게 클래스를 생성해줘야하기 때문에
+
+#### 정적 유틸리티를 잘못 사용한 예시 - 사전 종류에 따라 다른 dictionary를 사용해야할 경우 불편하다.
+```
+public class SpellChecker {
+   private static final Dictionary dictionary = ...;
+
+   private SpellChecker() {} // 객체 생성 방지
+
+   public static boolean isValid(String word) { ... } // dictionary를 사용한 코드가 포함됨
+   public static List<String> suggestions(String typo) { ... } // dictionary를 사용한 코드가 포함됨
+}
+```
+
  * 이러한 경우엔, 인스턴스를 생성할 때 생성자에 필요한 자원을 넘겨주는 방식인 의존 객체 주입 방식이 적절하다.
  * 의존 객체 주입이란?
-    * 인스턴스를 생성할 때 필요한 자원을 넘겨주는 방식이다. 
+    * 인스턴스를 생성할 때 필요한 자원을 넘겨주는 방식이다.
+
+#### 의존 객체 주입을 통한 자원 주입
+```
+   public SpellChecker (Dictionary dictionary) {
+      this.dictionary = Objects.requireNonNull(dictionary);
+   }
+```
+
  * 이 방식의 변형으로 생성자에 자원 팩터리를 넘겨줄 수 있다.
     * 팩터리란? 호출할 때마다 특정 타입의 인스턴스를 반복해서 만들어주는 개체를 말한다.
     * 자바8의 `Supplier<T>` 인터페이스가 팩터리를 표현한 완벽한 예시다.
