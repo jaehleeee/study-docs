@@ -48,7 +48,7 @@ public class SpellChecker {
 public class SpellChecker {
    private static final Dictionary dictionary = ...;
 
-   public SpellChecker (Supplier<Dictionary> supplier) {
+   public SpellChecker (Supplier<? extends Dictionary> supplier) {
       this.dictionary = supplier.get();
    }
 
