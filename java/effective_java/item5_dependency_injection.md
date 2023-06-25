@@ -22,9 +22,16 @@ public class SpellChecker {
 
 #### 의존 객체 주입을 통한 자원 주입
 ```
+public class SpellChecker {
+   private static final Dictionary dictionary = ...;
+
    public SpellChecker (Dictionary dictionary) {
       this.dictionary = Objects.requireNonNull(dictionary);
    }
+
+   ...
+}
+
 ```
 
  * 이 방식의 변형으로 생성자에 자원 팩터리를 넘겨줄 수 있다.
@@ -35,3 +42,22 @@ public class SpellChecker {
 
 
 ## 완벽 공략
+
+### 1. 팩터리를 넘겨주는 패턴
+```
+public class SpellChecker {
+   private static final Dictionary dictionary = ...;
+
+   public SpellChecker (Supplier<Dictionary> supplier) {
+      this.dictionary = supplier.get();
+   }
+
+   ...
+}
+
+```
+
+
+
+
+
