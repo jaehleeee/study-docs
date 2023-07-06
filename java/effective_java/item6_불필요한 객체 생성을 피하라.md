@@ -38,8 +38,8 @@
     * Serial : 싱글 스레드 gc, 단일 코어일때 사용. Stop-the-world 발생이 길다. (실제 잘 사용되지 않는다.)
     * Paralllel : java 8 디폴트. Serial과 같은 방식인데, 스레드를 많이 쓰므로 멀티 코어 cpu에서 사용
  * 이후 나온 gc들은 latency 최적화되어 있다.
-   * CMS : Concurrent Mark Sweep, Stop-the-world 개선
-   * G1 : Garbage first, java 9 디폴트, Stop-the-world 매우 짧다
+   * CMS GC : Concurrent Mark Sweep, Stop-the-world 개선
+   * G1 GC : Garbage first, java 9 디폴트, Stop-the-world 매우 짧다
     
  
 
