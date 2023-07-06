@@ -27,15 +27,20 @@
     * Mark : 참조가 남아있는지 체크
     * Sweep : Mark된 객체를 heap에서 제거
     * Compact : Sweep되어 파편화된 메모리 공간을 정리
- * Young Generation(Eden, S0, S1) : Eden 최초에 여기로 다 모아서 꽉차면 S0,S1으로 보낸다. -> { S0 <-> S1 }
+ * Young Generation(Eden, S0, S1) : Eden 최초에 여기로 다 모아서 꽉차면 S0,S1으로 번갈아 보낸다. -> { S0 <-> S1 }
+    * Eden: 새로 생성된 객체가 저장된다. 가득차면 Minor GC가 발생하여 더 이상 참조되지 않은 객체들을 제거 후 S 남은 객체들을 S0, S1 영역으로 보낸다. 
+    * Suvivor (S0, S1) : S0, S1 번호는 의미없고 번갈아가면서 살아남은 객체를 모은다. 그러다 특정 조건(객체 나이, S 영역 생존 횟수 등이 있고 jvm 버젼에 따라 다르다.)에 해당되면 Old Generation으로 보낸다.
  * Old Generation : 오래 살아남은 객체
- * Minor GC, Full GC
- * gc를 평가하는 관점 : Throughput, Latency(Stop-the-world), Footprint (gc를 위한 메모리) 
- * Serial, Paralllel, 
-    * Serial : cpu가 낮으면 이걸 써야한다.
-    * Paralllel : Serial과 같은 방식인데, 스레드를 많이 쓰므로 cpu가 좀 더 필요하다.
- * CMS, G1, ZGC, Shenandoah
-    * 이후 나온 gc들은 latency 최적화되어 있다.
+ * Minor GC : Young Generation에서 발생하는 GC,
+ * Major(Full) GC : Old Generation 에서 발생하는 GC, 시간이 오래걸리고 앱이 일시정지(Stop-the-world)될 수도 있다.
+ * gc를 평가하는 관점 : Throughput, Latency(Stop-the-world), Footprint (gc를 위한 메모리 사용량) 
+ * Serial, Paralllel GC
+    * Serial : 싱글 스레드 gc, 단일 코어일때 사용. Stop-the-world 발생이 길다. (실제 잘 사용되지 않는다.)
+    * Paralllel : java 8 디폴트. Serial과 같은 방식인데, 스레드를 많이 쓰므로 멀티 코어 cpu에서 사용
+ * 이후 나온 gc들은 latency 최적화되어 있다.
+   * CMS : Concurrent Mark Sweep, Stop-the-world 개선
+   * G1 : Garbage first, java 9 디폴트, Stop-the-world 매우 짧다
+    
  
 
 #### 초기화 지연 기법 (아이템83)
