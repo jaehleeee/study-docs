@@ -40,6 +40,7 @@
  * 이후 나온 gc들은 latency 최적화되어 있다.
    * CMS GC : Concurrent Mark Sweep, Stop-the-world 개선
    * G1 GC : Garbage first, java 9 디폴트, Stop-the-world 매우 짧다
+   * ZGC : ?
     
  
 
