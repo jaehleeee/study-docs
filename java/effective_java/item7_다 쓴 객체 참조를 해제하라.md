@@ -10,4 +10,16 @@
  * 유효범위의 예시 : 특정 메서드내에서만 메서드 과정에서 사용하는 객체인 경우, 메서드 끝날때 null 처리해주는게 좋다.
 
 ## 완벽 공략
- * ㅇㅇ
+#### NullPointerException
+ * NPE 발생 이유
+    * 메서드에서 null 리턴하기 때문
+    * null 체크를 하지 않기 때문
+ * Optional 활용을 통해 NPE를 방지하자
+   * Optional은 파라미터로 쓰라고 만든게 아니라, 리턴 타입의 용도이다.
+   * Collection을 Optional로 감싸지 마라.
+   * null을 Optional 객체에 넣지 마라. Optional.empty() 를 넣어야 한다.
+
+#### WeakHashMap
+ * Weak Reference
+#### 백그라운드 쓰레드
+ * ScheduledThreadPoolExecutor
