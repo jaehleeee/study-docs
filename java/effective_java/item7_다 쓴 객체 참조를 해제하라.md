@@ -32,5 +32,36 @@
        * 자원 정리할떄 주로 사용되는 용도이다.
  * 결론적으로, 굳이 Strong 이외의 참조는 사용을 지양하자...
          
-#### 백그라운드 쓰레드
- * ScheduledThreadPoolExecutor
+#### 백그라운드 쓰레드 : ScheduledThreadPoolExecutor
+ * 기본 : Thread, Runnable, Exucutor
+ * 쓰레드 풀 개수는 CPU, I/O 고려
+ * 쓰레드 풀 종류
+    * Single, Fixed, Cached, Scheduled 
+
+#### Runnable
+ * 리턴 타입없이 void 리턴 작업을 정의하기 위한 클래스다.
+ * 리턴을 원한다면? Callable 사용가능하다. Future<xx> 형태의 리턴을 받는다.
+
+#### Thread
+```
+Thread thread = new Thread(new RunnerbleTask());
+thread.start();
+```
+
+ * 쓰레드가 여러개 필요하다고 for문으로 thread.start() 해버리면? thread가 무한히 생성된다.
+ * 그래서 threadPool 이 필요하다.
+    * threadPool은 ExecutorService로 만들 수 있다.
+    * 쓰레드는 무한대로 만들 순 없고, cpu 개수에 따라 다르다
+```
+ExecutorService service = Executors.newfixedThreadPool(10);
+for (...) {
+    service.submit(new RunnerbleTask());
+}
+service.shutdown();
+```
+
+ * `Executors.newCachedThreadPool()` : 쓰레드 개수 파라미터가 없다. 알아서 처리한다. 
+   * 놀고 있으면 그 쓰레드를 쓰고, 부족해서 필요하면 새로 만들며 남아돌면 만든 것을 지워준다
+ * `Executors.newScheduledThreadPool(쓰레드개수)` : 스케쥴을 감안해서 쓰레드 사용성을 조절한다.
+
+
