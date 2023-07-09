@@ -23,12 +23,14 @@
  * Key가 더 이상 Strong Reference 되는 곳이 없다면, 해당 엔트리를 제거한다.
     * CacheKey라는 클래스를 Map의 key로 둔다면(Map<CacheKey, Value>) CacheKey c1 이라는 키와 Value v2 라는 객체들이 Map 엔트리로 들어가 있다고 가정하자.
     * 이때 c1 = null을 넣으면, WeakHashMap에서는 Map에 저장되어 있던 엔트리도 제거한다.
+ * WeakReference의 List는 제대로 동작하지 않으니 그냥 사용하면 안된다 (ex: `List<WeakReference<User>>`) 필요하다면, Custom List 만들어야 한다
  * 레퍼런스 종류
     * Strong : 보통 알고 있는 참조. `new 객체()`를 통해 객체를 매핑하는 경우가 Strong이다.
     * Soft : `new SoftReferecne<>(객체)` 형태로 사용. Strong reference가 없다면 GC 대상이 된다. 다만, 메모리가 부족하는 등 꼭 필요한 경우가 생길때만 GC 처리된다.(즉 웬만하면 안없어진다)
     * Weak : `new WeakReferecne<>(객체)` 형태로 사용. Strong reference가 없다면 GC 대상이 된다. GC 발생시 바로 없어진다.
     * Phantom : `new PhantomReferecne<>(객체, queue)` 형태로 사용(queue 데이터구조 필수). 사라질때 queue에 들어간다.
        * 자원 정리할떄 주로 사용되는 용도이다.
+ * 결론적으로, 굳이 Strong 이외의 참조는 사용을 지양하자...
          
 #### 백그라운드 쓰레드
  * ScheduledThreadPoolExecutor
