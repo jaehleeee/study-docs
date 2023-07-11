@@ -1,12 +1,11 @@
 # 8. finalizer와 cleaner 사용을 피하라
 ## 핵심 정리
-#### finalizer와 cleaner는 문제가 많다.
+#### finalizer와 cleaner(java 9 도입)는 문제가 많다.
  * 즉시 수행 보장이 없고 실행되지 않을 수도 있다. 
  * 동작 중 예외 발생시 정리 작업이 처리되지 않을 수 있다.
  * 성능 문제가 있다.
  * 보안 문제가 있다.
-#### 반납 자원이 있다면
- * AutoCloseable을 구현하고 close를 호출하거나, try-with-resource를 사용해야 한다.
+
 
 #### finalizer란? from ChatGPT
 ```
@@ -24,7 +23,47 @@ Java 9부터는 finalize() 메서드의 사용을 비권장(deprecated)으로 �
 
 따라서 일반적으로는 finalize() 메서드를 사용하기보다는 명시적인 자원 관리 방식을 선호하는 것이 좋습니다.
 ```
+#### 그럼 반납할 때 어떤 방법을?
+ * AutoCloseable을 구현하고 close 메서드를 override하고, try-with-resource를 통해 자원을 해제하자.
+    * try 블록을 벗어나기 전에 close 메서드가 호출되어 리소스가 해제된다.
+ * 혹시나 AutoCloseable을 구현하고도 try-with-resource 형태를 사용하지 않는다면, 자원이 해제되지 않을수도 있다. 그럴땐 안정망으로 cleaner 클래스를 이용할 수 있다.
 
+#### 안전망과 AutoCloseable 모두 구현된 클래스 예시 
+```
+public class Room implements AutoCloseable {
+    private static final Cleaner cleaner = Cleaner.create();
+
+    // 청소가 필요한 자원. 절대 Room을 참조해서는 안 된다!
+    private static class State implements Runnable {
+        int numJunkPiles; // 방 안의 쓰레기 수
+
+        State(int numJunkPiles) {
+            this.numJunkPiles = numJunkPiles;
+        }
+
+        // close 메서드나 cleaner가 호출한다.
+        @Override public void run() {
+            System.out.println("Cleaning room");
+            numJunkPiles = 0;
+        }
+    }
+
+    // 방의 상태. cleanable과 공유한다.
+    private final State state;
+
+    // cleanable 객체. 수거 대상이 되면 방을 청소한다.
+    private final Cleaner.Cleanable cleanable;
+
+    public Room(int numJunkPiles) {
+        state = new State(numJunkPiles);
+        cleanable = cleaner.register(this, state);
+    }
+
+    @Override public void close() {
+        cleanable.clean();
+    }
+}
+```
 
 ## 완벽 공략
  * ㅇㅇ
