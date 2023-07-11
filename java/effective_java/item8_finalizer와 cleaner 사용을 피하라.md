@@ -33,6 +33,11 @@ Java 9부터는 finalize() 메서드의 사용을 비권장(deprecated)으로 �
 public class Room implements AutoCloseable {
     private static final Cleaner cleaner = Cleaner.create();
 
+    public Room(int numJunkPiles) {
+        state = new State(numJunkPiles);
+        cleanable = cleaner.register(this, state);
+    }
+
     // 청소가 필요한 자원. 절대 Room을 참조해서는 안 된다!
     private static class State implements Runnable {
         int numJunkPiles; // 방 안의 쓰레기 수
@@ -53,11 +58,6 @@ public class Room implements AutoCloseable {
 
     // cleanable 객체. 수거 대상이 되면 방을 청소한다.
     private final Cleaner.Cleanable cleanable;
-
-    public Room(int numJunkPiles) {
-        state = new State(numJunkPiles);
-        cleanable = cleaner.register(this, state);
-    }
 
     @Override public void close() {
         cleanable.clean();
