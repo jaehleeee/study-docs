@@ -29,7 +29,7 @@ Java 9부터는 finalize() 메서드의 사용을 비권장(deprecated)으로 �
  * 혹시나 AutoCloseable을 구현하고도 try-with-resource 형태를 사용하지 않는다면, 자원이 해제되지 않을수도 있다. 그럴땐 안정망으로 cleaner 클래스를 이용할 수 있다.
 
 #### 안전망과 AutoCloseable 모두 구현된 클래스 예시
- * try-with-resource 사용되었다면, `close()` 메서드가 자동으로 실행된다.
+ * try-with-resource 사용되었다면, `close()` 메서드가 자동으로 실행되어 자원을 해제한다.
  * try-with-resource 사용되지 않았다면, gc가 발생할때 cleaner queue에 객체가 들어가게 되고, Runnable로 정의된 state 클래스 작업(run)이 실행된다.
 ```
 public class Room implements AutoCloseable {
@@ -69,4 +69,38 @@ public class Room implements AutoCloseable {
 ```
 
 ## 완벽 공략
- * ㅇㅇ
+#### 중첩 클래스에서 정적이 아닌 클래스는 바깥 객체의 참조를 갖는다.
+ * 아럐 예시 코드처럼, 정적이 아닌 (non-static) 중첩 클래스는 바깥 객체의 참조를 가질 수 있다.
+   * 바깥 클래스의 참조를 가질 수 있다면, 이후 자원을 해제할때 해제가 잘 안될 수 있고 복잡성을 가진다.
+   * 그러니 중첩 클래스는 정적(static) 클래스로 만드는 것이 좋다.
+ * 람다도 마찬가지다. 클래스 내부의 람다는 외부 클래스에 대한 필드에 접근하는 경우 해당 필드에 대한 참조를 가지게 된다.
+    * 그래서 람다 안에서 바깥 클래스 필드 중static 필드만 접근해야 한다. (안하는게 가장 좋다.) 
+```
+public class OuterClass {
+   private void hi() {}
+
+   class InnerClass {
+      public void hello() {
+         OuterClass.this.hi();
+      }
+   }
+}
+```
+
+#### Finalizer 공격
+ * Finalizer 공격이란?
+```
+악의적인 공격자가 finalize() 메서드를 악용하여 시스템을 공격하는 것입니다.
+악의적인 객체를 생성하여 finalize() 메서드를 오버라이드하고, 해당 객체의 finalize() 메서드를 호출하도록 하여 악성 코드를 실행시킬 수 있습니다
+```
+ * 이를 막으려면?
+    * finalize를 미리 오버라이드 후, 더 이상 상속해서 override 해서 쓰지 못하도록 final 키워드를 붙여둔다.
+    * 혹은 클래스 자체에 final 키워드를 붙여 더 이상 상속을 못하게 막는 방법도 있다. (하지만 이 방법은 상속이 필요한 경우엔 안좋은 방법이 되니까 윗 방법이 더 좋다.)
+
+#### AutoClosable
+ * ㅇㅇㅇ
+ * 
+
+
+ 
+
