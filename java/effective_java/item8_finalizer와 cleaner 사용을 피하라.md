@@ -28,7 +28,9 @@ Java 9부터는 finalize() 메서드의 사용을 비권장(deprecated)으로 �
     * try 블록을 벗어나기 전에 close 메서드가 호출되어 리소스가 해제된다.
  * 혹시나 AutoCloseable을 구현하고도 try-with-resource 형태를 사용하지 않는다면, 자원이 해제되지 않을수도 있다. 그럴땐 안정망으로 cleaner 클래스를 이용할 수 있다.
 
-#### 안전망과 AutoCloseable 모두 구현된 클래스 예시 
+#### 안전망과 AutoCloseable 모두 구현된 클래스 예시
+ * try-with-resource 사용되었다면, `close()` 메서드가 자동으로 실행된다.
+ * try-with-resource 사용되지 않았다면, gc가 발생할때 cleaner queue에 객체가 들어가게 되고, Runnable로 정의된 state 클래스 작업(run)이 실행된다.
 ```
 public class Room implements AutoCloseable {
     private static final Cleaner cleaner = Cleaner.create();
