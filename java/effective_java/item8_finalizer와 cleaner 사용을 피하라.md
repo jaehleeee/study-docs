@@ -38,6 +38,17 @@ public class Room implements AutoCloseable {
         cleanable = cleaner.register(this, state);
     }
 
+    // try-with-resource 사용되었다면, 이 메서드가 자동으로 실행된다.
+    @Override public void close() {
+        cleanable.clean();
+    }
+
+    // 방의 상태. cleanable과 공유한다.
+    private final State state;
+
+    // cleanable 객체. 수거 대상이 되면 방을 청소한다.
+    private final Cleaner.Cleanable cleanable;
+
     // 청소가 필요한 자원. 절대 Room을 참조해서는 안 된다!
     private static class State implements Runnable {
         int numJunkPiles; // 방 안의 쓰레기 수
@@ -51,16 +62,6 @@ public class Room implements AutoCloseable {
             System.out.println("Cleaning room");
             numJunkPiles = 0;
         }
-    }
-
-    // 방의 상태. cleanable과 공유한다.
-    private final State state;
-
-    // cleanable 객체. 수거 대상이 되면 방을 청소한다.
-    private final Cleaner.Cleanable cleanable;
-
-    @Override public void close() {
-        cleanable.clean();
     }
 }
 ```
