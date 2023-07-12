@@ -97,10 +97,10 @@ public class OuterClass {
     * finalize를 미리 오버라이드 후, 더 이상 상속해서 override 해서 쓰지 못하도록 final 키워드를 붙여둔다.
     * 혹은 클래스 자체에 final 키워드를 붙여 더 이상 상속을 못하게 막는 방법도 있다. (하지만 이 방법은 상속이 필요한 경우엔 안좋은 방법이 되니까 윗 방법이 더 좋다.)
 
-#### AutoClosable
- * ㅇㅇㅇ
- * 
-
+#### `AutoClosable` interface
+ * 자원반납을 자동으로 해준다.
+ * override 해줘야할 close 메서드는 idempotent (멱등성)한게 좋다.
+    * idempotent : 여러번 호출해도 매번 같은 결과가 나오는 특성    
 
  
 
