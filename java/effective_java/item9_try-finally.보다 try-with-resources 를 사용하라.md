@@ -30,4 +30,25 @@ try (BufferedReader br = new BufferedReader(new FileReader(path))) {
 ```
 
 ## 완벽 공략
- * ㅇㅇ
+#### 자바 퍼즐러(자바 퀴즈를 내며 공부할 수 있는 책) 예외 처리 코드 실수
+ * -
+#### try-with-resources 바이트 코드
+ * close()를 여러번 호출한다 - 멱등성 필요
+ * suppressed로 예외를 모두 포함시키게 한다
+```
+BufferedReader br = new BufferedReader(new FileReader(path));
+String var2;
+try {
+   var2 = br.readLive();
+} catch(Throwable var5) {
+   try {
+      br.close();
+   } catch(Throwable var6) {
+      var5.addSuppressed(var6);
+   }
+   throw var5;
+}
+br.close();
+```
+
+
