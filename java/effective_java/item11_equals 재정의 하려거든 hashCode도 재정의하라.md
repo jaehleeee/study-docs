@@ -8,7 +8,10 @@
     * 서로 다른 객체의 hashCode가 같다면(hash collision), Hash Table에서 같은 버킷에 들어가 링크드 리스트로 저장된다. 즉 서로 다른 hashCode보다 성능이 떨어진다.
 #### hashCode의 쓰임새
  * Hash Table의 적절한 위치에 저장할때 사용된다. 즉 haspMap, hashSet, HashTable 등의 컬렉션 프레임워크 클래스 내부적으로 사용된다.
-#### hashCode의 구현 방법 (Objects 클래스에서 자동으로 만들어주는 방법이 있다. `Objects.hash(field1, field2, ..)` 하지만 방법을 살펴보자면)
+#### hashCode의 구현 방법
+ * 간단한 방법 2가지
+    * lombok의 @EqualsAndHashCode 어노테이션 활용
+    * Objects 클래스에서 자동으로 만들어주는 방법이 있다. `Objects.hash(field1, field2, ..)`
  * 핵심 필드를 하나 고르고, 해당 필드가 primitive 타입이라면 wrapper 타입의 hashCode를 사용하면 된다.
  * primitive 타입이 아니라면, 해당 타입의 hashCode를 사용한다.
  * 필드가 여러개면? 31을 이전 필드 hashCode에 곱해서 다음 필드 hashCode를 더한다.
