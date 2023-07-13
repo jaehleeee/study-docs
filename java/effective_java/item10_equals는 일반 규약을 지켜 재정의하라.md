@@ -10,9 +10,9 @@
 
 ### equal 규약
 #### 반사성 `A.equals(A) == true`
-#### 대칭성 `A.equals(B) == B.equals(B)`
-#### 추이성 `A.equals(B) == B.equals(C)== C.equals(A)`
-#### 일관성 `A.equals(A) == A.equals(A)`
+#### 대칭성 `A.equals(B) == B.equals(A)`
+#### 추이성 `A.equals(B) == B.equals(C)== C.equals(A)`
+#### 일관성 `A.equals(B) == A.equals(B)`
 #### null 아님 `A.equals(null) == false`
 
 ### equal 구현 방법과 주의사항
