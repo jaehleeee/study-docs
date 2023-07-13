@@ -12,10 +12,11 @@
  * 간단한 방법 2가지
     * lombok의 @EqualsAndHashCode 어노테이션 활용
     * Objects 클래스에서 자동으로 만들어주는 방법이 있다. `Objects.hash(field1, field2, ..)`
- * 핵심 필드를 하나 고르고, 해당 필드가 primitive 타입이라면 wrapper 타입의 hashCode를 사용하면 된다.
- * primitive 타입이 아니라면, 해당 타입의 hashCode를 사용한다.
- * 필드가 여러개면? 31을 이전 필드 hashCode에 곱해서 다음 필드 hashCode를 더한다.
-    * 왜 31? 홀수여야하고 + 어떤 두명이 개발자가 사전의 모든 단어를 hash할때 31이 가장 충돌이 적었다고 한다..
+ * 직접 만들어볼꺼라면?
+   * 핵심 필드를 하나 고르고, 해당 필드가 primitive 타입이라면 wrapper 타입의 hashCode를 사용하면 된다.
+   * primitive 타입이 아니라면, 해당 타입의 hashCode를 사용한다.
+   * 필드가 여러개면? 31을 이전 필드 hashCode에 곱해서 다음 필드 hashCode를 더한다.
+      * 왜 31? 홀수여야하고 + 어떤 두명이 개발자가 사전의 모든 단어를 hash할때 31이 가장 충돌이 적었다고 한다..
  
 #### 전형적인 hashCode 구현 예시
 ```
