@@ -32,6 +32,18 @@
 
 ## 완벽 공략
 #### 해시맵 내부 연결리스트
- * ㅇ
-#### 스레드 안전
- * ㅇ
+ * 자바8부터 해시 충돌시 성능 개선을 위해 버킷에 일정 개수 이상 엔트리가 추가되면, 연결 리스트 대신 이진 트리를 사용하도록 변경되었다.
+ * 연결리스트는 O(N), 이진트리는 O(logN)
+
+#### 스레드 safety
+ * 가장 안전한 방법은 여러 스레드간 공유되는 데이터가 없을 것!
+ * 공유 데이터가 있다면?
+    * Synchronized 키워드
+       * 1번에 하나의 스레드만 해당 메서드(or 객체 or 블락{}) 에 접근할 수 있다 (내부적으로 lock을 사용)
+       * 성능에 문제가 생길 수 있다
+    * ThreadLocal : 각 스레드 내부 로컬변수 
+    * 불변 객체 사용
+    * Synchronized 지원 데이터 타입 사용 - ex: HashTable
+       * HashTable과 HashMap 차이점 : HashTable은 스레드 safety 하다! 
+    * Cuncurrent 지원 데이터 타입 사용 - ex: ConcurrentLinkedQueue
+       * Cuncurrent : 동시 접근 허용
