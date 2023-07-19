@@ -1,13 +1,15 @@
 #  자바 public static void main (String[] args) 의미
 
-https://docs.oracle.com/javase/specs/jls/se8/html/jls-8.html#jls-8.4.1
+https://docs.oracle.com/javase/specs/jls/se12/html/jls-12.html#jls-12.1.4
 
 ```
-The formal parameters of a method or constructor, if any, are specified by a list of comma-separated parameter specifiers.
-Each parameter specifier consists of a type (optionally preceded by the final modifier and/or one or more annotations)
-and an identifier (optionally followed by brackets) that specifies the name of the parameter.
+The method main must be declared public, static, and void. It must specify a formal parameter (§8.4.1) whose declared type is array of String.
+Therefore, either of the following declarations is acceptable:
 
-If a method or constructor has no formal parameters, only an empty pair of parentheses appears in the declaration of the method or constructor.
+public static void main(String[] args)
+,
+public static void main(String... args)
+
 ```
 
  * java의 진입점을 의미한다.
