@@ -1,7 +1,7 @@
 # 9. try-finally 보다 try-with-resources 를 사용하라
 ## 핵심 정리
  * try-finally 는 java7부터 더이상 최선의 방법이 아니다
-    * 특히 자원이 2 이상이라서 try-finally을 2번 써야하면 코드가 매우 지저분해진다.
+    * 특히 관리,해제할 자원이 2개 이상이라서 try-finally을 2번 써야하면 코드가 매우 지저분해진다.
     * 자원이 2개인데 try-finally 한번만 사용하면, 둘 중 하나의 자원에서 에러가 발생했을때 다른 자원에서 leak 발생할 수 있다.
  * try-with-resources 사용하면 코드가 더 짧고 분명해진다.
     * 또한 try-finally 와 마찬가지로, catch와 finally 같이 사용 가능하기 때문에 단점은 없고 장점만 존재한다.
