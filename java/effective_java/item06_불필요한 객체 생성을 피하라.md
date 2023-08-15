@@ -24,7 +24,7 @@
 
 #### 가비지 컬렉션
  * 기본 과정 : Mark -> Sweep -> Compact
-    * Mark : 참조가 남아있는지 체크
+    * Mark : 참조가 남아있는지 체크, 참조가 없는 객체에 표시(mark)를 남김.
     * Sweep : Mark된 객체를 heap에서 제거
     * Compact : Sweep되어 파편화된 메모리 공간을 정리
  * Young Generation(Eden, S0, S1) : Eden 최초에 여기로 다 모아서 꽉차면 S0,S1으로 번갈아 보낸다. -> { S0 <-> S1 }
