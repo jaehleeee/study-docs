@@ -56,8 +56,8 @@
  * 예외가 발생했을때 클라이언트가 복구 가능한 상황이라면 checked exception, 복구가 힘들다면 unchecked exception
  * [RuntimeException Class JAVA Docs](https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/lang/RuntimeException.html)
  * [Unchecked Exceptions — The Controversy JAVA Docs](https://docs.oracle.com/javase/tutorial/essential/exceptions/runtime.html)
-    * unchecked exception 은 catch or specify 할 필요가 없으므로 Runtime exception 으로 모든 예외를 만드는 경향이 생긴다.
-    * checked exception 은 throw를 강제한 이유는 메소드를 호출한 이들에게 알리기 위함이다. (ex: IOException, SQLException 등)
+    * unchecked exception(ex: IllegalArgumentException, NPE 등) 은 catch or specify 할 필요가 없으므로 Runtime exception 으로 모든 예외를 만드는 경향이 생긴다.
+    * checked exception(ex: IOException, SQLException 등) 은 throw를 강제한 이유는 메소드를 호출한 이들에게 알리기 위함이다. 
     * runtime exception(unchecked exception)은 API 클라이언트 코드가 복구되거나 어떤 방식으로든 처리될 것을 합리적으로 기대할 수 없음을 의미한다.
     * runtime exception(unchecked exception)은 또한 어떤 상황이든 발생할 수 있다. 발생할 수 있는 경우가 numerous 하다. 모든 메소드 선언에 런타임 예외를 추가해야 하는 것은 프로그램의 명확성을 떨어뜨릴 것이다.
     * runtime exception을 던지는 유일한 경우는 일반 유저가 함수를 잘못 호출한 경우.
