@@ -22,5 +22,15 @@
     *  그러면 클라이언트는 템플릿 메서드 호출할때 BiFunction 에 해당하는 부분만 넣으면 된다
     *  이렇게 하면 템플릿 메서드를 제공하는 추상 클래스에서 abstract를 뺄 수 있다
 
-#### 디폴트 메서드와 Object 메서드
- * ㅇㅇ
+#### 인터페이스에서 디폴트 메서드로는 toString, hashCode, equals 재정의를 막아놓았다. 왜일까?
+
+ 1. `the key goal of adding default methods to Jva was "interface evolution",not "poor mans's traits."`
+    * 디폴트 메서드의 용도에 맞지 않기 때문
+    * `poor mans's traits` : 가난한 자들의 습성, 유머가 없고 불필요하게 공격적인..?
+ 2. `Adds complexity`     
+    * 저런 기본 메서드까지 재정의하면 어떤 클래스의 기본 메서드를 따라야할지 클라이언트 입장에서 복잡도가 증가한다.
+    * 추상 클래스와 인터페이스 모두 상속 및 구현하고 있는 구체 클래스가 있다면 헤깔리기 시작하게 된다.
+ 3. `Really only makes sense in toy example` 저러한 기본 메서드를 정의하려고 하면 필드들이 있어야 한다, 필드가 없는 인터페이스에서는 불필요한 행위다
+ 4. `It's brittle` : 깨지기 쉬워진다.
+    * 인터페이스를 구현하는 것만으로 기존 구체 클래스의 기본 메서드 기능이 변경되기 쉽다  
+
