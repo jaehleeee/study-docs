@@ -42,17 +42,37 @@ Class<? extends Annotation> // 한정적 와일드카드 타입
 
 ```
 
-   
-
-
 ## 핵심 정리
 #### 로(raw) 타입은 사용하지 말라
- * 로 타입이면, 컴파일 타임에 잡아낼 수 있는 오류를 잡아낼 수 없다.
-#### ㅇㅇ
- * ㅇㅇ
+ * 로 타입이면, 컴파일 타임에 잡아낼 수 있는 오류를 잡아낼 수 없다. (안정성)
+ * 제네릭을 사용하면 어떤 타입인지 명확히 표현 가능하다 (표현력)
+#### 자바는 왜 로 타입을 지원하는가?
+ * (item28에서 자세히 소개)
+ * 하위버젼 호환성을 위해
+ * 실제로 컴파일된 코드를 보면, 로 타입으로 보인다.
+#### List와 List<Object> 의 차이는?
+ * 안정성과 표현력의 차이
+#### Set과 Set<?>의 차이는?
+ * 로타입은 안정성이 깨진다 (add 할때 아무거나 넣을 수 있다)
+ * Set<?> Set을 캐스팅하는 측면에서는가장 범용적인 타입이다. 대신 add 할땐 아무것도 넣을 수 없다
+
 
 ## 완벽 공략
-#### ㅇㅇ
+#### GenericRepository
  * ㅇㅇ
-#### ㅇㅇ
- * ㅇㅇ
+
+```
+public class GenericRepository<E extends Entity> {
+   private Set<E> entities;
+   private Optional<E> findById(Long id) {
+      return entities.stream().filter(a -> a.getId().equals(id)).findAny();
+   }
+}
+
+---
+
+public class AccountRepository extends GenericRepository<Account> {
+}
+```
+
+
