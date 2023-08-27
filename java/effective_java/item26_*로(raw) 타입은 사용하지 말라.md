@@ -16,6 +16,7 @@ Class<? extends Annotation> // 한정적 와일드카드 타입
  * 와일드카드는 뭔가 넣을때 쓰는게 아님.
  * 받을때 쓰는거다
    * 제네릭타입이 아무리 부모 클래스라도 엄연히 다른 타입이므로 컴파일 에러가 발생한다. 그래서 와일드카드가 필요하다.
+   * 참고로 `Box<? extends Object> box` 는 `Box<?> box` 와 같다.
    * (아래 코드 예시)
 ```
   public static void main(String[] args) {
