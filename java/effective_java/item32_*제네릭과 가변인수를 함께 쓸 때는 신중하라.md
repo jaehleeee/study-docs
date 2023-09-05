@@ -31,13 +31,20 @@ static void dangerous(List<String>... stringLists) {
  * 여러 쓰레드에서 공유되는 변수는 쓰레드 안전성 관련 문제가 발생할 수 있다.
    * 경합 또는 경쟁조건
    * 교착 상태
-   * Livelock
+   * Livelock : 서로 계속 lock만 교체하고 접근은 못하는 상태
  * ThreadLocal
    * 쓰레드 지역변수를 사용하면 동기화 하지 않아도 한 쓰레드에서만 접근 가능하므로 쓰레드 안전하다.
    * 한 쓰레드 내에서 공유하는 데이터로, 메서드 매개변수에 매번 전달하지 않고 전역 변수처럼 사용할 수 있다.
 
-#### ㅇㅇ
- * ㅇㅇ
+#### Java에서 동시성을 해결하는 3가지 해결책
+1. synchronized: 안전하게 동시성 보장하지만 비용이 크다.
+2. volatile: Cpu별로 가지고 있는 cpu cache memory가 아닌, main memory를 사용하는 방식이므로 동시 read는 가능하지만 동시 write로 인한 문제는 해결하지 못한다.
+3. Atomic 클래스: CAS(CompareAndSwap) 을 이용하여 동시성 보장하므로 synchronized 보다 적은 비용으로 동시성 보장한다.
+  * CAS(CompareAndSwap) 이란? 현재의 스레드가 존재하는 CPU의 cpu cache memory와 main memory에 저장된 값을 비교하여 일치하지 않으면 교체하는 방식이다. 
+
+#### ThreadLocalRandom : 스레드 로컬 랜덤값 생성기
+ * java.util.Random은 멀티 스레드 환경에서 CAS(CompareAndSwap) 으로 인해 실패할 가능성이 있어서 성능이 좋지 않다.
+ * ThreadLocalRandom을 사용하면 스레드 전용이므로 스레드간 간섭이 발생하지 않는다. 
 
 
 
