@@ -46,7 +46,7 @@ static void dangerous(List<String>... stringLists) {
        * 예상된 값이 아니라면, 그 값을 cpu cache memory의 cache로 변경한다.
 
 #### ThreadLocalRandom : 스레드 로컬 랜덤값 생성기
- * java.util.Random은 멀티 스레드 환경에서 CAS(CompareAndSwap) 으로 인해 실패할 가능성이 있어서 성능이 좋지 않다.
+ * java.util.Random은 멀티 스레드 환경에서 CAS(CompareAndSwap) 으로 인하여 스레드 safe 하지만, write 실패로 인한 재시도 가능성이 있어서 성능이 좋지 않다.
  * ThreadLocalRandom을 사용하면 스레드 전용이므로 스레드간 간섭이 발생하지 않는다. 
 
 
