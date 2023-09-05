@@ -10,7 +10,6 @@ static void dangerous(List<String>... stringLists) {
 }
 ```
 
-
 ## 핵심 정리
 #### 제네릭 가변 인수 배열에 값을 저장하는 것은 안전하지 않다.
  * 힙 오염 발생 가능(컴파일 경고)
