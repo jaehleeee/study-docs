@@ -36,8 +36,8 @@ pulibc void popAll(Collection<? super E> dst) {
   while (!isEmpty()) dst.add(pop());
 }
 ```
-#### ㅇㅇ
- * ㅇㅇ
+#### Comparator와 Comparable은 소비자
+ * Comparable은 을 직접 구현할지 않고, 직접 구현한 다른 타입을 확장한 타입을 지원하려면 와일드카드가 필요하다.
 
 ## 완벽 공략
 #### ㅇㅇ
