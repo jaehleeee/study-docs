@@ -40,7 +40,10 @@ static void dangerous(List<String>... stringLists) {
 1. synchronized: 안전하게 동시성 보장하지만 비용이 크다.
 2. volatile: Cpu별로 가지고 있는 cpu cache memory가 아닌, main memory를 사용하는 방식이므로 동시 read는 가능하지만 동시 write로 인한 문제는 해결하지 못한다.
 3. Atomic 클래스: CAS(CompareAndSwap) 을 이용하여 동시성 보장하므로 synchronized 보다 적은 비용으로 동시성 보장한다.
-   * CAS(CompareAndSwap) 이란? 현재의 스레드가 존재하는 CPU의 cpu cache memory와 main memory에 저장된 값을 비교하여 일치하지 않으면 교체하는 방식이다. 
+   * CAS(CompareAndSwap) 이란?
+     * 현재의 스레드가 존재하는 CPU의 cpu cache memory와 main memory에 저장된 값을 비교
+       * main memory에서 가지고 있는 값이 cpu cache에서 예상된 값이라면, 신규 값으로 변경하고
+       * 예상된 값이 아니라면, 그 값을 cpu cache memory의 cache로 변경한다.
 
 #### ThreadLocalRandom : 스레드 로컬 랜덤값 생성기
  * java.util.Random은 멀티 스레드 환경에서 CAS(CompareAndSwap) 으로 인해 실패할 가능성이 있어서 성능이 좋지 않다.
