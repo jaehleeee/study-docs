@@ -20,7 +20,9 @@
 ```
 
 #### UnCheckedException (RuntimeException)
- * 컴파일시 체크되지도 않고, try-catch로 잡지 않아도 된다.
+ * 컴파일시 체크되지도 않고, try-catch로 잡지 않아도 된다. 롤백된다
+ * UnCheckedException 예시: `NullPointerException`, `ArrayIndexOutOfBoundsException`
+ * CheckedException 예시: `FileNotFoundException`, `DataAccessException`
  * 그럼 CheckedException는 언제 사용할까?
     * 클라이언트에게 알려줘야하는 경우
     * ex: 특정 조건의 파라미터를 호출하면 exception이 발생한다.
