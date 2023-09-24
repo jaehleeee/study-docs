@@ -12,7 +12,7 @@
  * 원하는 타입의 Set을 주입받을 수 있다
  * 전형적인 데코레이터 패턴
 ```
-public class ForwardingSet<E> implemetns Set<E> {
+public class ForwardingSet<E> implements Set<E> {
   private final Set<E> s;
   public  ForwardingSet(Set<E>S) { this.s = s;}
 
