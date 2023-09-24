@@ -12,6 +12,15 @@
  * 추상 골격(skeletal) 클래스 : 아주 일부의 필수 메서드만 override 할 수 있게 추상 메서드로 남겨두고 나머지 대부분의 메서드는 미리 구현해두는 클래스
  * 장점은?
    * 여러 인터페이스를 구현할 수 있다 (skeletal 클래스에 구현하는게 아니라, skeletal 클래스를 상속하려고 하는 구체 클래스에 중복으로 인터페이스를 구현 가능하다)
+ * 예시
+```
+public abstract class AbstractList<E> extends AbstractCollection<E> implements List<E> {
+
+	protected AbstractList(){
+    }
+}
+
+```
 
 
 ## 완벽 공략
