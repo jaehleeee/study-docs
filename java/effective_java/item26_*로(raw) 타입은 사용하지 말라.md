@@ -14,8 +14,8 @@ Class<? extends Annotation> // 한정적 와일드카드 타입
 
 ### 와일드카드와 제네릭 타입의 차이는?
 #### 먼저 공변과 불공변을 알아야 한다.
- * 공변(covariant) : A가 B의 하위 타입일 때, T <A> 가 T<B>의 하위 타입이면 T는 공변 (ex: Array)
- * 불공변(invariant) : A가 B의 하위 타입일 때, T <A> 가 T<B>의 하위 타입이 아니면 T는 불공변 (ex: Collection)
+ * 공변(covariant) : A가 B의 하위 타입일 때, `T<A>` 가 `T<B>`의 하위 타입이면 T는 공변 (ex: Array)
+ * 불공변(invariant) : A가 B의 하위 타입일 때, `T<A>` 가 `T<B>`의 하위 타입이 아니면 T는 불공변 (ex: Collection)
  * 제네릭타입이 아무리 부모 클래스라도 엄연히 다른 타입이므로 컴파일 에러가 발생한다. 그래서 와일드카드가 필요하다.
  * 와일드카드는 any type 이 아니라 unknown type 이다.
  * 무슨말이냐면, `Collection<?> c = new ArrayList<String>();` 가 있을때 `c.add(new Object());` // 컴파일 에러 발생
