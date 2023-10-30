@@ -17,7 +17,12 @@ Iterable<Integer> integers = Arrays.asList(3, 1, 4, 7, 0);
 numberList.pushAll(integers); // 컴파일 에러 발생
 ```
 
-#### Chooser와 Union API 개선
+#### Chooser와 Union API 개선 : PECS(producer-extends, consumer-super)
+ * 매개변수 T가 클래스에서 사용할 원소를 생산한다면 producer
+ * 매개변수 T가 클래스에서 사용된 원소를 소비한다면(가져간다면) consumer
+ * 단, 입력 매개변수가 생산자와 소비자 역할을 동시에 한다면 와일드카드 타입을 써도 좋을 게 없다.
+     * 타입을 정확히 지정해야 하는 상황으로, 이때는 와일드 카드 타입을 쓰지 말아야 한다.
+
  * Producer(원소를 push 할때) - Extends
    * 상위 타입의 제네릭 클래스엔 하위 타입의 원소를 넣을 수 있다.
  * 하위타입까지 포함시키려면 한정적 와일드카드를 활용하면 된다.
