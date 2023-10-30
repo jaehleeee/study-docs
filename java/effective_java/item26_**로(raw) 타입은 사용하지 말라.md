@@ -50,16 +50,15 @@ Class<? extends Annotation> // 한정적 와일드카드 타입
  * (item28에서 자세히 소개)
  * 하위버젼 호환성을 위해
  * 실제로 컴파일된 코드를 보면, 로 타입으로 보인다.
-#### List와 List<Object> 의 차이는?
+#### `List`와 `List<Object>` 의 차이는?
  * 안정성과 표현력의 차이
-#### Set과 Set<?>의 차이는?
+#### `Set`과 `Set<?>`의 차이는?
  * 로타입은 안정성이 깨진다 (add 할때 아무거나 넣을 수 있다)
- * Set<?> Set을 캐스팅하는 측면에서는가장 범용적인 타입이다. 대신 add 할땐 아무것도 넣을 수 없다
+ * `Set<?>` Set을 캐스팅하는 측면에서는가장 범용적인 타입이다. 대신 add 할땐 아무것도 넣을 수 없다
 
 
 ## 완벽 공략
 #### GenericRepository
- * ㅇㅇ
 
 ```
 public class GenericRepository<E extends Entity> {
