@@ -36,4 +36,4 @@
        * 단, 배치 단위로 데이터를 보낸다.
  * 파티셔너 인터페이스를 활용해서 파티셔너를 만들면 커스텀하게 파티셔너를 만들수도 있다
 
-![image](https://github.com/jaehleeee/study-docs/assets/48814463/37113701-6f7e-4385-a618-ba46f4d81d90)
+<img width="350" alt="image" src="https://github.com/jaehleeee/study-docs/assets/48814463/37113701-6f7e-4385-a618-ba46f4d81d90">
