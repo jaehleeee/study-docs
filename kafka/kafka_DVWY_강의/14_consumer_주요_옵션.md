@@ -5,7 +5,9 @@
 
 
 # 선택 옵션
- * group.id : 컨슈머 그룹 아이디 지정. subscribe 메서드로 토픽 구독할떄는 필수다. 기본값은 null
+ * group.id : 컨슈머 그룹 아이디 지정. 기본값은 null
+   * subscribe 메서드로 토픽 구독할떄는 필수다.
+   * 파티션 할당하는 경우 필요없다. 
  * auto.offset.reset : 저장된 컨슈머 오프셋이 없을때 컨슈머 그룹이 어느 오프셋부터 읽을지 선택. 기본값은 latest
    * (이미 오프셋 저장되어 있다면 이 옵션은 무시됨.)
  * enable.auto.commit : 자동 커밋 여부 지정. 기본값 true
