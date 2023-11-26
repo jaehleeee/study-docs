@@ -1,6 +1,23 @@
-# 주요 옵션
- * ㅇㅇ
+# 필수 옵션
+ * bootstrap.servers : 카프카 클러스터에 속한 브로커의 호스트이름:포트 1개 이상 작성
+ * key.deserializer : 레코드 메시지 키 역직렬화 클래스 지정
+ * value.deserializer : 레코드 메시지 값 역직렬화 클래스 지정
 
+
+# 선택 옵션
+ * group.id : 컨슈머 그룹 아이디 지정. subscribe 메서드로 토픽 구독할떄는 필수다. 기본값은 null
+ * auto.offset.reset : 저장된 컨슈머 오프셋이 없을때 컨슈머 그룹이 어느 오프셋부터 읽을지 선택. 기본값은 latest
+   * (이미 오프셋 저장되어 있다면 이 옵션은 무시됨.)
+ * enable.auto.commit : 자동 커밋 여부 지정. 기본값 true
+ * auto.commit.interval.ms : 자동 커밋일 경우, 오프셋 커밋 간격 지정. 기본값은 5000
+ * max.poll.records : poll 메서드로 응답받을 레코드 수 지정. 기본값은 500
+ * session.timeout.ms :  컨슈머와 브로커 연결 끊기는 최대 시간. 기본값은 10000.
+   * 마지막 하트비트로부터 10초가 지난 시점부터 컨슈머 장애로 판단)
+ * heartbeat.interval.ms : 하트 비트 전송 시간 간격. 기본 3000
+ * max.poll.interval.ms : poll 메서드 호출 간격 최대 시간. 기본 300000 (5분).
+   * 이 시간내에 poll 메서드가 재호출되지 않으면 리밸러싱이 필요하다고 판단.
+   * 레코드 1개당 처리시간이 꽤 소요된다면 이 시간을 더 늘려놓는게 좋다. 
+ * isolation.level : 트랜잭션 프로듀서가 레코드를 트랜잭션 단위로 보낼 경우 사용.
 
 
 # auto.offset.reset
