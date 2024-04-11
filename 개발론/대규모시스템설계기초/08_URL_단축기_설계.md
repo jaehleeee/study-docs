@@ -25,7 +25,7 @@
    * 원래 URL = hashTable.get(단축url)
 ### URL 단축
  * 단축 url이 www.tinyurl.com/{hashValue} 형태라고 해보자.
- * f(긴URL) = 단축URL이 되는 f(x) 해시함수를 찾아야 한다.
+ * 'f(긴URL) = 단축URL' 이 되는 f(x) 해시함수를 찾아야 한다.
  * 해시함수의 조건
    * 긴 url이 다르면 해시값도 달라야 한다.
    * 복원될 수 있어야 한다.
