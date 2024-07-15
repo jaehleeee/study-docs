@@ -19,3 +19,10 @@
  * 내부 메서드는 자동으로 abstract 키워드가 붙는다.
 
 
+## 스프링에서 어노테이션 인식 과정
+ * 리플렉션을 통해 특정 어노테이션을 인식한다.
+#### 예시
+```
+Set<Class<?>> preInitiatedControllers = r efelections.getTypesAnnotationWIth(Controller.class);
+
+```
