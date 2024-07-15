@@ -23,6 +23,6 @@
  * 리플렉션을 통해 특정 어노테이션을 인식한다.
 #### 예시
 ```
-Set<Class<?>> preInitiatedControllers = r efelections.getTypesAnnotationWIth(Controller.class);
+Set<Class<?>> preInitiatedControllers = refelections.getTypesAnnotationWIth(Controller.class);
 
 ```
