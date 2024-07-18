@@ -3,7 +3,7 @@
 ## 메타 어노테이션
 ### @Target
  * 어노테이션이 사용되는 위치
- * 종류 예시: CONSTURCTOR,
+ * 종류 예시: CONSTURCTOR, FIELD, METHOD 등
 
 ### @Retention
  * 어노테이션을 어느 범위까지 유효성을 유지할 것인가
