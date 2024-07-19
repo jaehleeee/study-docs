@@ -33,7 +33,6 @@ try {
 }
 ```
 
-
 ### 이렇게 할 경우 문제점
  * 코드가 깔끔하지 않다.
  * 데이터 액세스 기술에 의존적인 코드가 된다 (JDBC냐? JPA냐?)
@@ -80,10 +79,39 @@ connection.setAutoCommit(false);
 ![image](https://github.com/user-attachments/assets/7100432b-dfb4-4128-8c35-76d0823e4768)
 
 
-
 ### 선언적 트랜잭션 @Transactional
  * @Transactional AOP를 통해 구현
  * 타겟 메서드를 가진 클래스를 상속 받아 트랜잭션 경계로 감싼 프록시로 만든다.
+
+#### 스프링 AOP가 프록시 방식을 사용하는 이유는?
+ * 프록시 없이, 직접 타겟 객체를 참조하려고 한다면, 타겟의 원하는 위치에서 직접 aspect 클래스를 호출해야한다.
+ * 그럼 타겟 클래스 안에 부가 기능을 호출하는 로직이 포함되므로 유지보수성이 떨어진다.
+ * 따라서 타겟 객체를 상속하는 프록시를 만들어서 이를 해결한다. 
+
+#### 트랜잭션 target 호출이 들어오면 진행되는 과정
+1. target에 대한 호출이 들어오면 AOP proxy가 이를 가로채서(intercept) 가져온다.
+2. AOP proxy에서 Transaction Advisor가 commit 또는 rollback 등의 트랜잭션 처리를 한다.
+3. 트랜잭션 처리 외에 다른 부가 기능이 있을 경우, 해당 Custom Advisor에서 그 처리를 한다.
+4. 각 Advisor에서 부가 기능 처리를 마치면 Target Method를 수행한다.
+5. interceptor chain을 따라 caller에게 결과를 다시 전달한다.
+
+#### 트랜잭션 프록시 동작 수도 코드
+```
+public class TransactionProxy{
+    private final TransactonManager manager = TransactionManager.getInstance();
+		...
+    public void transactionLogic() {
+        try {
+	    manager.begin();// 트랜잭션 전처리(트랜잭션 시작, autoCommit(false) 등)
+	    target.logic(); // 다음 처리 로직(타겟 비스니스 로직, 다른 부가 기능 처리 등)
+            manager.commit(); // 트랜잭션 후처리(트랜잭션 커밋 등)
+        } catch ( Exception e ) {
+            manager.rollback(); // 트랜잭션 오류 발생 시 롤백
+        }
+    }
+}
+```
+
 
 ## 스프링 트랜잭션 속성
  * propagation
