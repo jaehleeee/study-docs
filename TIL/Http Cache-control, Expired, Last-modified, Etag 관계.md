@@ -1,6 +1,7 @@
 ## Cache-control: max-age 와 Expires 의 관계
  * cache 가 가장 먼저 참고 하는 것은 max-age(seconds), 그 다음이 expires
  * 문법 `Cache-Control: max-age=<seconds>`, `Expires: <http-date>`
+   
 `응답 내에 "max-age" 혹은 "s-max-age" 디렉티브를 지닌 Cache-Control 헤더가 존재할 경우, Expires 헤더는 무시됩니다.`
 
 ## Etag
