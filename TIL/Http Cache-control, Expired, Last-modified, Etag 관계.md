@@ -5,6 +5,7 @@
 `응답 내에 "max-age" 혹은 "s-max-age" 디렉티브를 지닌 Cache-Control 헤더가 존재할 경우, Expires 헤더는 무시됩니다.`
 
 ## Etag
+ * 응답 헤더
  * 특정 버전의 리소스를 식별하는 식별자
  * 특정 URL 의 리소스가 변경된다면, 새로운 ETag 가 생성
  * w/ 지시자가 붙으면 weak
@@ -23,7 +24,8 @@ If-None-Match: "33a64df551425fcc55e4d42a148795d9f25f89d4"
 (이 상태는 캐시된 버전이 여전히 유효하다는 것을 클라이언트에게 알려줌)
 ```
 
-## Last-Modified (응답 헤더)
+## Last-Modified
+ * 응답 헤더
  * 본 서버가 리소스가 마지막으로 수정되었다고 생각하는 날짜와 시간이 포함
  * ETag 헤더보다 정확하진 않지만 이 태그는 대비책으로 사용
     * If-Modified-Since 또는 If-Unmodified-Since헤더를 포함하는 조건부 요청은 이 필드를 사용
